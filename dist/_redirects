@@ -1,0 +1,9 @@
+# Giữ tín hiệu SEO cho các trang lưu trữ của WordPress cũ (Cloudflare Pages)
+/home-2/                 /                 301
+/feed/                   /blog/            301
+/author/*                /ve-chung-toi/    301
+/category/*              /blog/            301
+/project-budget/*        /projects/        301
+/project-location/*      /projects/        301
+/project-type/*          /projects/        301
+/du-an/                  /projects/        301

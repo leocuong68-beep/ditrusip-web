@@ -9,24 +9,75 @@ export async function getStaticPaths() {
 const { l } = Astro.props as { l: Listing };
 const others = (await getListings()).filter((x) => x.id !== l.id && x.kind === l.kind).slice(0, 3);
 // Nội dung cũ đã có ảnh trong thư viện; bỏ ảnh trong thân bài, hiện thư viện riêng.
-const body = fixLinks((l.content_html ?? '').replace(/<img[^>]*>/g, ''));
+// Bỏ phần đầu (cặp nhãn/giá trị lặp với khung bên phải) và phần đuôi của theme cũ (thông tin cơ bản, danh sách ảnh, điều hướng).
+function trimBody(html: string) {
+  let h = html.replace(/<img[^>]*>/g, '');
+  const start = h.indexOf('<h2');
+  if (start > 0) h = h.slice(start);
+  const cut = ['Thông tin cơ bản', 'Hình ảnh dự án', 'Điều hướng bài viết', 'Liên hệ chúng tôi để lấy báo giá']
+    .map((t) => h.indexOf(t)).filter((i) => i > 0).sort((a, b) => a - b)[0];
+  if (cut) h = h.slice(0, h.lastIndexOf('<', cut));
+  return h.replace(/<(p|li|h[1-4]|ul|strong|em)>\s*<\/\1>/g, '').trim();
+}
+const body = fixLinks(trimBody(l.content_html ?? ''));
 const gallery = (l.gallery?.length ? l.gallery : [l.image_url]).filter(Boolean) as string[];
 ---
 <Base title={l.seo_title ?? `${l.title} | Di Trú Síp`} description={l.seo_description} image={l.image_url}>
   <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/projects/">Dự án BĐS</a> › {l.title}</p>
     <h1>{l.title}</h1>
-    <p><span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {l.area}</span></p>
-    <div class="gal">
-      {gallery.map((src, i) => <a href={src} target="_blank" rel="noopener" class={i === 0 ? 'main' : ''}><img src={src} alt={`${l.title} — ảnh ${i + 1}`} loading={i < 1 ? 'eager' : 'lazy'} /></a>)}
+    <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {l.area}</span>
+      <b style="color:var(--navy)">{priceLabel(l)}</b>
+      <span class="muted">{[l.bedrooms && `${l.bedrooms} phòng ngủ`, l.size_m2, l.handover && `Bàn giao ${l.handover}`].filter(Boolean).join(' · ')}</span></p>
+    <div class={`gal${gallery.length >= 5 ? '' : ' few'}`}>
+      {gallery.slice(0, 5).map((src, i) => (
+        <button type="button" class={i === 0 ? 'main' : ''} data-i={i} aria-label={`Xem ảnh ${i + 1}`}>
+          <img src={src} alt={`${l.title} — ảnh ${i + 1}`} loading={i < 1 ? 'eager' : 'lazy'} />
+          {i === 4 && gallery.length > 5 && <span class="more">+{gallery.length - 5} ảnh</span>}
+        </button>
+      ))}
     </div>
+    {gallery.length > 1 && <p style="margin:10px 0 0"><button type="button" class="btn alt all-photos" data-i="0">Xem tất cả {gallery.length} ảnh</button></p>}
+    <dialog id="lb" aria-label={`Ảnh ${l.title}`}>
+      <button type="button" class="close" aria-label="Đóng">×</button>
+      <button type="button" class="nav prev" aria-label="Ảnh trước">‹</button>
+      <img id="lb-img" src={gallery[0]} alt="" />
+      <button type="button" class="nav next" aria-label="Ảnh sau">›</button>
+      <p id="lb-cap"></p>
+    </dialog>
+    <script define:vars={{ gallery, title: l.title }}>
+      const lb = document.getElementById('lb'), im = document.getElementById('lb-img'), cap = document.getElementById('lb-cap');
+      let cur = 0;
+      const show = (i) => { cur = (i + gallery.length) % gallery.length; im.src = gallery[cur]; im.alt = `${title} — ảnh ${cur + 1}`; cap.textContent = `${cur + 1} / ${gallery.length}`; };
+      document.querySelectorAll('.gal button, .all-photos').forEach((b) => b.addEventListener('click', () => { show(Number(b.dataset.i)); lb.showModal(); }));
+      lb.querySelector('.close').addEventListener('click', () => lb.close());
+      lb.querySelector('.prev').addEventListener('click', () => show(cur - 1));
+      lb.querySelector('.next').addEventListener('click', () => show(cur + 1));
+      lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+      document.addEventListener('keydown', (e) => { if (!lb.open) return; if (e.key === 'ArrowLeft') show(cur - 1); if (e.key === 'ArrowRight') show(cur + 1); });
+    </script>
     <style>
-      .gal { display: grid; gap: 8px; grid-template-columns: repeat(4, 1fr); }
-      .gal a.main { grid-column: span 2; grid-row: span 2; }
-      .gal img { width: 100%; height: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; }
+      .gal { display: grid; gap: 8px; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); aspect-ratio: 2.2 / 1; }
+      .gal button { padding: 0; border: 0; background: none; cursor: zoom-in; position: relative; min-height: 0; border-radius: 10px; overflow: hidden; }
+      .gal button.main { grid-row: span 2; }
+      .gal img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; }
+      .gal .more { position: absolute; inset: 0; background: rgba(14,49,62,.55); color: #fff; font-weight: 600; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+      .gal.few { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); grid-template-rows: none; aspect-ratio: auto; }
+      .gal.few button { aspect-ratio: 3/2; }
+      .gal.few button.main { grid-row: auto; }
+      dialog#lb { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+      dialog#lb::backdrop { background: rgba(6,24,32,.88); }
+      #lb img { max-width: 92vw; max-height: 82vh; display: block; margin: 0 auto; border-radius: 8px; }
+      #lb p { color: #fff; text-align: center; margin: 8px 0 0; }
+      #lb .close, #lb .nav { position: fixed; background: rgba(255,255,255,.15); color: #fff; border: 0; border-radius: 999px; width: 44px; height: 44px; font-size: 26px; cursor: pointer; }
+      #lb .close { top: 16px; right: 16px; }
+      #lb .prev { left: 12px; top: 50%; }
+      #lb .next { right: 12px; top: 50%; }
       @media (max-width: 700px) {
-        .gal { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
-        .gal a { flex: 0 0 86%; scroll-snap-align: start; }
+        .gal { grid-template-columns: 1fr 1fr; grid-template-rows: auto; aspect-ratio: auto; }
+        .gal button.main { grid-column: span 2; grid-row: auto; aspect-ratio: 3/2; }
+        .gal button:not(.main) { aspect-ratio: 3/2; }
+        .gal button:nth-child(n+4) { display: none; }
       }
     </style>
     <div style="display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:24px">

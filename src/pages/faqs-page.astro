@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPages } from '../lib/db';
+const page = (await getPages()).find((p) => p.slug === 'faqs-page');
+// Nội dung cũ (Elementor): câu hỏi là chữ trần ngay trước <p> câu trả lời.
+const raw = (page?.content_html ?? '').replace(/<i><\/i>/g, '').replace(/\s+/g, ' ');
+const intro = (raw.match(/<p>([\s\S]*?)<\/p>/) ?? [])[1] ?? '';
+const faqs: { q: string; a: string[] }[] = [...raw.matchAll(/(?<=>)\s*([^<>]{6,200}\?)\s*<p>([\s\S]*?)<\/p>/g)].map((m) => ({ q: m[1].trim(), a: [m[2].trim()] }));
+const jsonld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a.join(' ').replace(/<[^>]+>/g, '') } })) };
+---
+<Base title={page?.seo_title ?? 'Hỏi đáp | Di Trú Síp'} description={page?.seo_description} jsonld={jsonld}>
+  <div class="wrap narrow">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Hỏi đáp</p>
+    <span class="chip">Hỏi đáp</span>
+    <h1 style="margin-top:12px">Hỏi đáp định cư Síp</h1>
+    <p class="muted" style="font-size:17px" set:html={intro} />
+    <div class="faq">
+      {faqs.map((f, i) => (
+        <details class="card" open={i === 0}>
+          <summary>{f.q}</summary>
+          <div class="ans">{f.a.map((a) => <p set:html={a} />)}</div>
+        </details>
+      ))}
+    </div>
+    <div class="card" style="margin-top:24px;background:var(--aqua);border:0">
+      <h2 style="margin:0">Câu hỏi của anh chị chưa có ở đây?</h2>
+      <p>Mỗi hồ sơ khác nhau. Đội ngũ trả lời theo trường hợp cụ thể của gia đình anh chị.</p>
+      <p style="display:flex;gap:10px;flex-wrap:wrap;margin:0"><a class="btn" href="/contact-us/">Hỏi đội ngũ</a><a class="btn alt" href="/chi-phi/">Tính chi phí 6(2)</a></p>
+    </div>
+  </div>
+  <style>
+    .faq { display: grid; gap: 10px; margin-top: 20px; }
+    .faq details { padding: 0; }
+    .faq summary { cursor: pointer; padding: 16px 48px 16px 18px; font-family: 'Lora', serif; font-weight: 600; color: var(--navy); font-size: 18px; list-style: none; position: relative; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: '+'; position: absolute; right: 18px; top: 12px; font-size: 24px; color: var(--blue); }
+    .faq details[open] summary::after { content: '–'; }
+    .faq .ans { padding: 0 18px 8px; color: var(--ink); }
+    .faq .ans p { margin: 0 0 12px; }
+  </style>
+</Base>

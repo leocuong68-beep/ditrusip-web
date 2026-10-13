@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPages, getSetting } from '../lib/db';
+const page = (await getPages()).find((p) => p.slug === 've-chung-toi');
+const team: { name: string; role: string; photo: string }[] = await getSetting('team');
+const steps = [
+  ['Kết nối và chia sẻ trải nghiệm thực tế', 'Chúng tôi lắng nghe mục tiêu của từng gia đình, chia sẻ kinh nghiệm đầu tư, định cư và cuộc sống thực tế tại Síp để cùng xây dựng lộ trình phù hợp.'],
+  ['Lựa chọn giải pháp đúng với nhu cầu', 'Dựa trên hiểu biết thị trường và mạng lưới đối tác địa phương, chúng tôi giúp anh chị chọn đúng bất động sản, đúng khu vực sống và phương án tài chính.'],
+  ['Đồng hành trong toàn bộ quá trình', 'Từ làm việc với luật sư, chủ đầu tư đến hoàn tất thủ tục, mỗi bước đều có người hỗ trợ trực tiếp, minh bạch, sát với những gì chính chúng tôi đã trải qua.'],
+  ['Ổn định cuộc sống và hoà nhập cộng đồng', 'Chúng tôi hỗ trợ những việc đầu tiên khi anh chị đến Síp: nhà ở, trường cho con, ngân hàng, vận hành tài sản và kết nối cộng đồng người Việt.'],
+];
+---
+<Base title={page?.seo_title ?? 'Về chúng tôi | Di Trú Síp'} description={page?.seo_description}>
+  <div class="wrap">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Về chúng tôi</p>
+    <section class="about-hero">
+      <div>
+        <span class="chip">Về chúng tôi</span>
+        <h1 style="margin-top:12px">Chào đón những hàng xóm tương lai</h1>
+        <p class="lead">Chúng tôi là những nhà đầu tư đang sinh sống và kinh doanh tại Síp. Từ trải nghiệm trực tiếp mua bất động sản, cho thuê, làm hồ sơ thường trú đến ổn định cuộc sống cho gia đình, chúng tôi muốn mang đến cho các gia đình Việt thông tin chính xác, minh bạch và giải pháp phù hợp.</p>
+        <p><a class="btn" href="/contact-us/">Liên hệ đội ngũ</a></p>
+      </div>
+      <img src="https://ditrusip.com/wp-content/uploads/2026/02/IMG_4191-scaled.jpeg" alt="Gia đình khách hàng Việt nhận nhà tại Síp" loading="eager" />
+    </section>
+
+    <h2>Đội ngũ tại Síp</h2>
+    <div class="team">
+      {team.map((m) => (
+        <figure class="card member">
+          <img src={m.photo} alt={m.name} loading="lazy" />
+          <figcaption><b>{m.name}</b><span class="muted">{m.role}</span></figcaption>
+        </figure>
+      ))}
+    </div>
+
+    <h2>Cùng nhau xây dựng cuộc sống mới</h2>
+    <p class="muted" style="max-width:68ch">Thành công không dừng ở việc hoàn tất hồ sơ, mà là khi gia đình anh chị thật sự an tâm, hoà nhập và phát triển lâu dài tại Síp.</p>
+    <div class="how">
+      <img src="https://ditrusip.com/wp-content/uploads/2026/02/IMG_4723-1024x683.jpg" alt="Nhà phố mới xây tại Paphos, Síp" loading="lazy" />
+      <ol>
+        {steps.map(([t, d], i) => <li class="card"><b class="num">{String(i + 1).padStart(2, '0')}</b><div><h3>{t}</h3><p>{d}</p></div></li>)}
+      </ol>
+    </div>
+  </div>
+  <style>
+    .about-hero { display: grid; gap: 28px; grid-template-columns: 1.1fr 1fr; align-items: center; }
+    .about-hero img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+    .lead { font-size: 18px; color: var(--muted); max-width: 60ch; }
+    .team { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); }
+    .member { padding: 0; overflow: hidden; margin: 0; }
+    .member img { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 0; display: block; }
+    .member figcaption { padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+    .member b { font-family: 'Lora', serif; color: var(--navy); font-size: 17px; }
+    .how { display: grid; gap: 24px; grid-template-columns: 1fr 1.2fr; align-items: start; }
+    .how > img { width: 100%; aspect-ratio: 4/5; object-fit: cover; position: sticky; top: 84px; }
+    .how ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .how li { display: flex; gap: 14px; }
+    .how h3 { margin: 0 0 4px; font-size: 18px; }
+    .how p { margin: 0; color: var(--muted); }
+    .num { font-family: 'Lora', serif; color: var(--blue); font-size: 24px; min-width: 36px; }
+    @media (max-width: 900px) { .team { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) {
+      .about-hero, .how { grid-template-columns: 1fr; }
+      .how > img { position: static; aspect-ratio: 3/2; }
+    }
+  </style>
+</Base>

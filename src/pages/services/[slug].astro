@@ -7,13 +7,35 @@ export async function getStaticPaths() {
 }
 const { s } = Astro.props as { s: Service };
 const topic = s.slug === 'khao-sat-sip' ? 'khao-sat' : 'lien-he';
+const others = (await getServices()).filter((x) => x.slug !== s.slug);
+// Bỏ khối "Danh mục dịch vụ / Liên hệ / Khám phá" của theme cũ ở đầu nội dung.
+let html = tidy(s.content_html);
+const k = html.indexOf('Khám phá ngay');
+if (k > 0 && k < 2500) html = html.slice(html.indexOf('</a>', k) + 4);
+html = html.replace(/^\s*(<\/[a-z0-9]+>\s*)+/, '');
 ---
 <Base title={s.seo_title ?? s.title} description={s.seo_description}>
-  <div class="wrap narrow">
+  <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/dich-vu/">Dịch vụ</a> › {s.title}</p>
     <h1>{s.title}</h1>
-    <div class="prose" set:html={fixLinks(tidy(s.content_html))} />
-    {s.slug === 'di-tru-sip' && <p><a class="btn" href="/chi-phi/">Tính chi phí diện 6(2)</a></p>}
-    <div style="margin-top:24px"><ContactForm topic={topic} /></div>
+    <p class="muted" style="max-width:66ch;font-size:18px">{s.seo_description}</p>
+    <div class="svc-layout">
+      <article class="prose page" set:html={fixLinks(html)} />
+      <aside>
+        <div class="card">
+          <h3 style="margin-top:0">Dịch vụ khác</h3>
+          <ul class="others">{others.map((o) => <li><a href={`/services/${o.slug}/`}>{o.title}</a></li>)}</ul>
+          {s.slug === 'di-tru-sip' && <p><a class="btn" href="/chi-phi/">Tính chi phí diện 6(2)</a></p>}
+        </div>
+        <ContactForm topic={topic} />
+      </aside>
+    </div>
   </div>
+  <style>
+    .svc-layout { display: grid; gap: 32px; grid-template-columns: minmax(0, 1fr) 360px; align-items: start; margin-top: 12px; }
+    .svc-layout aside { display: grid; gap: 16px; position: sticky; top: 84px; }
+    .others { padding-left: 18px; margin: 0; }
+    .others li { margin: 6px 0; }
+    @media (max-width: 900px) { .svc-layout { grid-template-columns: 1fr; } .svc-layout aside { position: static; } }
+  </style>
 </Base>

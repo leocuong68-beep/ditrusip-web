@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPages, getServices, getSetting } from '../lib/db';
+const page = (await getPages()).find((p) => p.slug === 'dich-vu');
+const services = await getServices();
+const imgs: Record<string, { src: string; alt: string }> = await getSetting('service_images');
+---
+<Base title={page?.seo_title ?? 'Dịch vụ | Di Trú Síp'} description={page?.seo_description}>
+  <div class="wrap">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Dịch vụ</p>
+    <span class="chip">Dịch vụ</span>
+    <h1 style="margin-top:12px">Những điều chúng tôi mang lại</h1>
+    <p class="muted" style="max-width:66ch;font-size:18px">Đội ngũ tại Paphos đồng hành từ lúc tìm hiểu, khảo sát, chọn nhà đến khi gia đình nhận thẻ thường trú và ổn định cuộc sống.</p>
+    <div class="svc">
+      {services.map((s) => (
+        <a class="card svc-card" href={`/services/${s.slug}/`}>
+          {imgs[s.slug] && <img src={imgs[s.slug].src} alt={imgs[s.slug].alt} loading="lazy" style="object-position:center 30%" />}
+          <div class="body">
+            <h2>{s.title}</h2>
+            <p class="muted">{s.seo_description}</p>
+            <span class="more">Xem chi tiết →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+    <div class="card" style="margin-top:28px;background:var(--aqua);border:0;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+      <div><h2 style="margin:0">Chưa biết bắt đầu từ đâu?</h2><p style="margin:6px 0 0">Tính thử tổng chi phí diện 6(2), hoặc đặt một buổi tư vấn miễn phí.</p></div>
+      <p style="display:flex;gap:10px;flex-wrap:wrap;margin:0"><a class="btn" href="/chi-phi/">Tính chi phí</a><a class="btn alt" href="/contact-us/">Đặt lịch tư vấn</a></p>
+    </div>
+  </div>
+  <style>
+    .svc { display: grid; gap: 18px; grid-template-columns: repeat(2, 1fr); margin-top: 24px; }
+    .svc-card { padding: 0; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s; }
+    .svc-card:hover { box-shadow: 0 10px 30px rgba(14,90,120,.12); transform: translateY(-2px); }
+    .svc-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 0; display: block; }
+    .svc-card .body { padding: 18px 20px 20px; }
+    .svc-card h2 { margin: 0 0 6px; font-size: 22px; }
+    .svc-card p { margin: 0 0 10px; }
+    .more { color: var(--dome); font-weight: 600; }
+    @media (max-width: 720px) { .svc { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { .svc-card { transition: none; } .svc-card:hover { transform: none; } }
+  </style>
+</Base>

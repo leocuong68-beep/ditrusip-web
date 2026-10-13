@@ -7,7 +7,7 @@ import { getPosts, getPages, getServices, CATS, fmtDate, fixLinks, tidy } from '
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  const pages = (await getPages()).filter((p) => !['home', 'blog'].includes(p.slug));
+  const pages = (await getPages()).filter((p) => !['home', 'blog', 've-chung-toi', 'dich-vu', 'contact-us', 'faqs-page'].includes(p.slug));
   return [
     ...posts.map((p) => ({ params: { slug: p.slug }, props: { kind: 'post', item: p } })),
     ...pages.map((p) => ({ params: { slug: p.slug }, props: { kind: 'page', item: p } })),
@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 const { kind, item } = Astro.props as any;
 const posts = await getPosts();
 const related = kind === 'post' ? posts.filter((p) => p.slug !== item.slug && p.category === item.category).slice(0, 3) : [];
-const services = item.slug === 'dich-vu' ? await getServices() : [];
+const services: any[] = [];
 // Trang cũ dựng bằng Elementor: bỏ nhãn dạng "<ul><li>Liên hệ</li></ul>" ở đầu (phần trang trí).
 const body = fixLinks(kind === 'page' ? tidy(item.content_html) : item.content_html);
 const jsonld = kind === 'post' ? {

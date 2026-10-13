@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { getPages, getSetting } from '../lib/db';
+const page = (await getPages()).find((p) => p.slug === 'contact-us');
+const c = await getSetting('contact');
+const social = await getSetting('social');
+const tel = (s: string) => `tel:${s.replace(/\s/g, '')}`;
+---
+<Base title={page?.seo_title ?? 'Liên hệ | Di Trú Síp'} description={page?.seo_description}>
+  <div class="wrap">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Liên hệ</p>
+    <span class="chip">Liên hệ</span>
+    <h1 style="margin-top:12px">Liên hệ với chúng tôi</h1>
+    <p class="muted" style="max-width:62ch;font-size:18px">Anh chị để lại thông tin hoặc nhắn trực tiếp. Đội ngũ ở Paphos trả lời trong giờ làm việc; giờ Síp chậm hơn Việt Nam 4 tiếng vào mùa hè, 5 tiếng vào mùa đông.</p>
+    <div class="contact">
+      <div class="info">
+        <div class="card">
+          <h2>Gọi hoặc nhắn tin</h2>
+          <p><span class="muted">Síp (WhatsApp/Zalo)</span><br /><a href={tel(c.phone_cy)}><b>{c.phone_cy}</b></a></p>
+          <p><span class="muted">Việt Nam</span><br /><a href={tel(c.phone_vn)}><b>{c.phone_vn}</b></a></p>
+          <p><span class="muted">Email</span><br /><a href={`mailto:${c.email}`}><b>{c.email}</b></a></p>
+          <p style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0"><a class="btn" href={c.whatsapp} rel="noopener">Nhắn WhatsApp</a><a class="btn alt" href={social.facebook} rel="noopener">Facebook</a></p>
+        </div>
+        <div class="card">
+          <h2>Văn phòng</h2>
+          <ul class="offices">{c.offices.map((o: any) => <li><b>{o.city}</b><span class="muted">{o.address}</span></li>)}</ul>
+        </div>
+        <img src="https://ditrusip.com/wp-content/uploads/2025/12/IMG_3929-1024x683.jpg" alt="Buổi làm việc tư vấn hồ sơ định cư tại văn phòng ở Síp" loading="lazy" />
+      </div>
+      <div class="form"><ContactForm /></div>
+    </div>
+  </div>
+  <style>
+    .contact { display: grid; gap: 24px; grid-template-columns: 1fr 1fr; margin-top: 24px; align-items: start; }
+    .info { display: grid; gap: 16px; }
+    .info h2 { margin: 0 0 10px; font-size: 22px; }
+    .info img { width: 100%; aspect-ratio: 3/2; object-fit: cover; }
+    .offices { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .offices li { display: flex; flex-direction: column; }
+    .form { position: sticky; top: 84px; }
+    @media (max-width: 820px) { .contact { grid-template-columns: 1fr; } .form { position: static; } }
+  </style>
+</Base>
