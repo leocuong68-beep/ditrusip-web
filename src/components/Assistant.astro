@@ -1,0 +1,105 @@
+---
+// Ô chat Trợ lý Di trú (Claude) — gọi Edge Function `assistant` trên Supabase.
+const FN = 'https://egbxinegjmhcdqfprsds.supabase.co/functions/v1/assistant';
+const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
+---
+<button id="ai-open" class="ai-open" aria-controls="ai-panel" aria-expanded="false">
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+  Hỏi Trợ lý Di trú
+</button>
+<section id="ai-panel" class="ai-panel" role="dialog" aria-label="Trợ lý Di trú" hidden>
+  <header>
+    <div><strong>Trợ lý Di trú</strong><span>Trợ lý AI · thông tin tham khảo</span></div>
+    <button id="ai-new" type="button" title="Cuộc trò chuyện mới">Mới</button>
+    <button id="ai-close" type="button" aria-label="Đóng">✕</button>
+  </header>
+  <div id="ai-log" class="ai-log" aria-live="polite"></div>
+  <div id="ai-quick" class="ai-quick"></div>
+  <form id="ai-form">
+    <textarea id="ai-input" rows="1" maxlength="1500" placeholder="Nhập câu hỏi…" aria-label="Câu hỏi cho trợ lý"></textarea>
+    <button type="submit" id="ai-send">Gửi</button>
+  </form>
+  <p class="ai-foot">Trả lời theo thông tin trên ditrusip.com, không phải tư vấn pháp lý. <a href="/chinh-sach-quyen-rieng-tu/">Quyền riêng tư</a></p>
+</section>
+
+<style is:global>
+  .ai-open { position: fixed; right: 16px; bottom: 76px; z-index: 21; display: flex; align-items: center; gap: 8px; background: var(--navy); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px; font: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(14,90,120,.3); }
+  .ai-open[aria-expanded="true"] { display: none; }
+  .ai-panel { position: fixed; right: 16px; bottom: 16px; z-index: 30; width: min(400px, calc(100vw - 32px)); height: min(620px, calc(100vh - 32px)); background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 18px 50px rgba(14,90,120,.25); display: flex; flex-direction: column; overflow: hidden; }
+  .ai-panel[hidden] { display: none; }
+  .ai-panel header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: var(--navy); color: #fff; }
+  .ai-panel header div { flex: 1; display: flex; flex-direction: column; line-height: 1.25; }
+  .ai-panel header strong { font-family: 'Lora', serif; font-size: 17px; }
+  .ai-panel header span { font-size: 12.5px; opacity: .8; }
+  .ai-panel header button { background: rgba(255,255,255,.14); color: #fff; border: 0; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  .ai-log { flex: 1; overflow-y: auto; padding: 14px; background: var(--bg); }
+  .ai-msg { max-width: 86%; margin: 0 0 10px; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+  .ai-msg.bot { background: #fff; border: 1px solid var(--line); border-top-left-radius: 5px; }
+  .ai-msg.me { background: var(--navy); color: #fff; margin-left: auto; border-top-right-radius: 5px; }
+  .ai-msg.me a { color: #fff; }
+  .ai-msg .ok { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--ok); }
+  .ai-msg.typing { color: var(--muted); }
+  .ai-quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 8px; background: var(--bg); }
+  .ai-quick button { border: 1.5px solid var(--blue); background: #fff; color: var(--navy); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  #ai-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
+  #ai-input { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 18px; padding: 10px 14px; font: inherit; font-size: 15px; max-height: 120px; background: var(--bg); color: var(--ink); }
+  #ai-send { border: 0; border-radius: 18px; padding: 0 16px; background: var(--orange); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  #ai-send:disabled { opacity: .5; cursor: default; }
+  .ai-foot { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); }
+  @media (max-width: 520px) {
+    .ai-panel { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; }
+    .ai-open { bottom: 72px; padding: 11px 15px; }
+  }
+</style>
+
+<script define:vars={{ FN, KEY }}>
+  (() => {
+    const $ = id => document.getElementById(id);
+    const open = $('ai-open'), panel = $('ai-panel'), log = $('ai-log'), quick = $('ai-quick'), form = $('ai-form'), input = $('ai-input'), send = $('ai-send');
+    const STORE = 'ditrusip.ai.v1';
+    const HELLO = 'Chào anh/chị, em là Trợ lý Di trú của Di Trú Síp. Em có thể giải đáp về thẻ thường trú Síp diện đầu tư 6(2), chi phí, dự án, tour khảo sát và an cư ở Paphos, rồi hẹn anh/chị gọi với chuyên viên. Anh/chị đang quan tâm điều gì ạ?';
+    const QUICK = ['Điều kiện thẻ thường trú 6(2)', 'Chi phí cho gia đình tôi', 'Tour khảo sát', 'Hẹn lịch gọi tư vấn'];
+    let state = { session: null, msgs: [] };
+    try { const v = JSON.parse(sessionStorage.getItem(STORE) || 'null'); if (v && Array.isArray(v.msgs)) state = v; } catch {}
+    const save = () => { try { sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, msgs: state.msgs.slice(-60) })); } catch {} };
+    const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const fmt = s => esc(s.replace(/\*\*/g, '')).replace(/(https?:\/\/[^\s)<]+[^\s)<.,;])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    function bubble(role, text, note) {
+      const d = document.createElement('div');
+      d.className = 'ai-msg ' + (role === 'user' ? 'me' : 'bot');
+      d.innerHTML = fmt(text) + (note ? `<span class="ok">✓ ${esc(note)}</span>` : '');
+      log.appendChild(d); log.scrollTop = log.scrollHeight; return d;
+    }
+    function render() {
+      log.innerHTML = ''; bubble('assistant', HELLO);
+      state.msgs.forEach(m => bubble(m.role, m.content, m.note));
+      quick.innerHTML = '';
+      if (!state.msgs.length) QUICK.forEach(q => { const b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.onclick = () => ask(q); quick.appendChild(b); });
+    }
+    async function ask(text) {
+      text = text.trim(); if (!text || send.disabled) return;
+      state.msgs.push({ role: 'user', content: text }); save(); render();
+      input.value = ''; send.disabled = true;
+      const wait = bubble('assistant', 'Đang trả lời…'); wait.classList.add('typing');
+      try {
+        const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify({ source: 'web', session_id: state.session, messages: state.msgs.map(m => ({ role: m.role, content: m.content })) }) });
+        const d = await r.json();
+        if (!d.reply) throw new Error('no reply');
+        if (d.session_id) state.session = d.session_id;
+        const ev = d.events || [];
+        state.msgs.push({ role: 'assistant', content: d.reply, note: ev.includes('call_booked') ? 'Đã ghi yêu cầu hẹn gọi' : ev.includes('lead_saved') ? 'Đã lưu thông tin để đội ngũ liên hệ' : undefined });
+      } catch {
+        state.msgs.push({ role: 'assistant', content: 'Xin lỗi anh/chị, em chưa kết nối được. Anh/chị thử lại sau ít phút hoặc nhắn WhatsApp/Zalo +357 94 100 091.' });
+      }
+      save(); render(); send.disabled = false; input.focus();
+    }
+    function toggle(show) { panel.hidden = !show; open.setAttribute('aria-expanded', String(show)); if (show) { render(); input.focus(); } }
+    open.onclick = () => toggle(true);
+    $('ai-close').onclick = () => toggle(false);
+    $('ai-new').onclick = () => { state = { session: null, msgs: [] }; save(); render(); };
+    form.onsubmit = e => { e.preventDefault(); ask(input.value); };
+    input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(input.value); } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) toggle(false); });
+    if (location.hash === '#tro-ly') toggle(true);
+  })();
+</script>

@@ -1,5 +1,6 @@
 ---
 import { getSetting } from '../lib/db';
+import Assistant from '../components/Assistant.astro';
 interface Props { title: string; description?: string | null; image?: string | null; type?: 'website' | 'article'; noindex?: boolean; jsonld?: object }
 const { title, description, image, type = 'website', noindex = false, jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
@@ -142,5 +143,6 @@ const path = Astro.url.pathname;
     </div>
   </footer>
   <a class="wa-float" href={contact.whatsapp} rel="noopener">WhatsApp</a>
+  <Assistant />
 </body>
 </html>
