@@ -7,7 +7,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const contact = await getSetting('contact');
 const social = await getSetting('social');
 const org = {
-  '@context': 'https://schema.org', '@type': 'Organization', name: 'Di Trú Síp', legalName: 'EUWay',
+  '@context': 'https://schema.org', '@type': 'Organization', name: 'Di Trú Síp', founder: { '@type': 'Person', name: 'Đặng Thái Cường' },
   url: 'https://ditrusip.com', email: contact.email, telephone: contact.phone_cy,
   address: { '@type': 'PostalAddress', addressLocality: 'Paphos', addressCountry: 'CY' },
   sameAs: [social.youtube, social.facebook].filter(Boolean),
@@ -124,7 +124,7 @@ const path = Astro.url.pathname;
       <div class="cols">
         <div>
           <h4>Di Trú Síp</h4>
-          <p>Tư vấn thường trú Síp diện đầu tư bất động sản 6(2), tour khảo sát, bất động sản và an cư tại Paphos. Thuộc công ty EUWay.</p>
+          <p>Tư vấn thường trú Síp diện đầu tư bất động sản 6(2), tour khảo sát, bất động sản và an cư tại Paphos.</p>
         </div>
         <div>
           <h4>Liên hệ</h4>

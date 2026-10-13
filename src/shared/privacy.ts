@@ -2,7 +2,7 @@
 export const PRIVACY: [string, string][] = [
   [
     "Ai chịu trách nhiệm",
-    "Di Trú Síp (ditrusip.com), thuộc công ty EUWay, đơn vị tư vấn định cư và bất động sản tại Paphos, Cộng hoà Síp, chịu trách nhiệm về dữ liệu anh chị cung cấp qua website và ứng dụng Di Trú Síp. Ứng dụng được nhà phát triển Đặng Thái Cường phát hành trên App Store cho Di Trú Síp."
+    "Ông Đặng Thái Cường, người điều hành Di Trú Síp (ditrusip.com) tại Paphos, Cộng hoà Síp, là người chịu trách nhiệm về dữ liệu anh chị cung cấp qua website và ứng dụng Di Trú Síp, đồng thời là nhà phát triển phát hành ứng dụng trên App Store."
   ],
   [
     "Tóm tắt",
