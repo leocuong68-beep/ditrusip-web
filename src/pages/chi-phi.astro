@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import { COST_SOURCE } from '../shared/costs';
+---
+<Base title="Tính Chi Phí Thường Trú Síp Diện 6(2) Cho Gia Đình | Di Trú Síp" description="Ước tính tổng chi phí mua nhà và làm thẻ thường trú Síp diện 6(2): VAT, phí luật sư, phí nhà nước, bảo hiểm và phí dịch vụ, theo số người trong gia đình.">
+  <div class="wrap narrow">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Chi phí 6(2)</p>
+    <h1>Tính chi phí diện thường trú 6(2)</h1>
+    <form id="calc" class="card" style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+      <label>Giá mua (€, chưa VAT)<br /><input name="price" type="number" min="300000" step="5000" value="300000" /></label>
+      <label>VAT<br /><select name="vat"><option value="5">5% (mua để ở, có điều kiện)</option><option value="19">19% (mua cho thuê)</option></select></label>
+      <label>Vợ / chồng<br /><select name="spouse"><option value="1">Có</option><option value="0">Không</option></select></label>
+      <label>Con dưới 18<br /><input name="kids" type="number" min="0" max="8" value="2" /></label>
+      <label>Con trên 18 (độc thân, đang học)<br /><input name="adultKids" type="number" min="0" max="8" value="0" /></label>
+    </form>
+    <div id="out" style="margin-top:20px"></div>
+    <p class="note">Ước tính theo {COST_SOURCE}. Chưa gồm chi phí đi lại, phiên dịch, công chứng tại Việt Nam. VAT 5% chỉ áp dụng khi đủ điều kiện mua làm nơi ở chính; luật sư xác nhận theo hồ sơ cụ thể. Giá nhà tối thiểu diện 6(2) là 300.000 € chưa VAT.</p>
+    <p><a class="btn" href="/contact-us/">Nhận bảng chi phí cho gia đình mình</a></p>
+  </div>
+  <style is:global>
+    #calc input, #calc select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: #fff; margin-top: 4px; }
+    #out table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; font-size: 15px; }
+    #out td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    #out td:last-child { text-align: right; white-space: nowrap; }
+    #out tr.g td { background: var(--aqua); font-weight: 600; color: var(--navy); }
+    #out tr.t td { background: var(--navy); color: #fff; font-weight: 700; font-size: 17px; }
+    #out small { color: var(--muted); }
+  </style>
+  <script>
+    import { computeCosts } from '../shared/costs';
+    const f = document.getElementById('calc') as HTMLFormElement;
+    const out = document.getElementById('out')!;
+    const eur = (n: number) => n.toLocaleString('de-DE') + ' €';
+    const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!));
+    function render() {
+      const d = new FormData(f);
+      const price = Math.max(300000, Number(d.get('price')) || 300000);
+      const r = computeCosts({ price, vat: Number(d.get('vat')) === 19 ? 19 : 5, spouse: d.get('spouse') === '1', kids: Math.max(0, Number(d.get('kids')) || 0), adultKids: Math.max(0, Number(d.get('adultKids')) || 0) });
+      let h = '<table>';
+      for (const g of r.groups) {
+        h += `<tr class="g"><td>${esc(g.title)}</td><td>${eur(g.total)}</td></tr>`;
+        for (const l of g.lines) h += `<tr><td>${esc(l.label)}${l.detail ? `<br><small>${esc(l.detail)}</small>` : ''}</td><td>${eur(l.amount)}</td></tr>`;
+      }
+      h += `<tr class="t"><td>Tổng dự kiến (${r.persons} người)</td><td>${eur(r.total)}</td></tr></table>`;
+      h += `<p class="muted">Ngoài giá nhà: <b>${eur(r.extra)}</b></p>`;
+      out.innerHTML = h;
+    }
+    f.addEventListener('input', render); render();
+  </script>
+</Base>

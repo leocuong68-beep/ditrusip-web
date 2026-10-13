@@ -1,0 +1,56 @@
+---
+// Bài viết (slug ở gốc tên miền, giữ như WordPress) và các trang tĩnh.
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, getPages, getServices, CATS, fmtDate, fixLinks, tidy } from '../lib/db';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const pages = (await getPages()).filter((p) => !['home', 'blog'].includes(p.slug));
+  return [
+    ...posts.map((p) => ({ params: { slug: p.slug }, props: { kind: 'post', item: p } })),
+    ...pages.map((p) => ({ params: { slug: p.slug }, props: { kind: 'page', item: p } })),
+  ];
+}
+const { kind, item } = Astro.props as any;
+const posts = await getPosts();
+const related = kind === 'post' ? posts.filter((p) => p.slug !== item.slug && p.category === item.category).slice(0, 3) : [];
+const services = item.slug === 'dich-vu' ? await getServices() : [];
+// Trang cũ dựng bằng Elementor: bỏ nhãn dạng "<ul><li>Liên hệ</li></ul>" ở đầu (phần trang trí).
+const body = fixLinks(kind === 'page' ? tidy(item.content_html) : item.content_html);
+const jsonld = kind === 'post' ? {
+  '@context': 'https://schema.org', '@type': 'Article', headline: item.title, datePublished: item.published_at, dateModified: item.updated_at,
+  image: item.cover_url ?? undefined, author: { '@type': 'Organization', name: 'Di Trú Síp' }, publisher: { '@type': 'Organization', name: 'Di Trú Síp' },
+  mainEntityOfPage: new URL(`/${item.slug}/`, Astro.site).href,
+} : undefined;
+---
+<Base title={item.seo_title ?? item.title} description={item.seo_description} image={item.cover_url} type={kind === 'post' ? 'article' : 'website'} jsonld={jsonld}>
+  <div class="wrap narrow">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › {kind === 'post' ? <><a href="/blog/">Tin tức</a> › {item.category && CATS[item.category]}</> : item.title}</p>
+    {kind === 'post' ? (
+      <article>
+        <h1>{item.title}</h1>
+        <p class="muted">{item.category && <span class="chip">{CATS[item.category]}</span>} Đăng {fmtDate(item.published_at)}{item.updated_at.slice(0, 10) !== item.published_at.slice(0, 10) && ` · Cập nhật ${fmtDate(item.updated_at)}`}</p>
+        {item.cover_url && <img src={item.cover_url} alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover" />}
+        <div class="prose" set:html={body} />
+        <p class="note">Bài viết mang tính tham khảo, không phải tư vấn pháp lý hay thuế. Anh chị cần xác nhận với luật sư theo hồ sơ cụ thể.</p>
+      </article>
+    ) : (
+      <>
+        <h1>{item.title === 'Contact Us' ? 'Liên hệ' : item.title}</h1>
+        <div class="prose page" set:html={body} />
+      </>
+    )}
+  </div>
+  {item.slug === 'contact-us' && <div class="wrap narrow" style="margin-top:24px"><ContactForm /></div>}
+  {services.length > 0 && (
+    <div class="wrap"><div class="grid" style="margin-top:24px">
+      {services.map((s: any) => <a class="card" href={`/services/${s.slug}/`} style="text-decoration:none;color:inherit"><h3 style="margin-top:0">{s.title}</h3><p class="muted">{s.seo_description}</p></a>)}
+    </div></div>
+  )}
+  {related.length > 0 && (
+    <section class="band"><div class="wrap"><h2 style="margin-top:0">Bài cùng chủ đề</h2><div class="grid">{related.map((p) => <PostCard p={p} />)}</div></div></section>
+  )}
+  {kind === 'post' && <div class="wrap narrow"><ContactForm /></div>}
+</Base>

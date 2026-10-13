@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts, getPages, CATS } from '../../lib/db';
+const posts = await getPosts();
+const page = (await getPages()).find((p) => p.slug === 'blog');
+const used = Object.keys(CATS).filter((c) => posts.some((p) => p.category === c));
+---
+<Base title={page?.seo_title ?? 'Tin tức | Di Trú Síp'} description={page?.seo_description}>
+  <div class="wrap">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Tin tức</p>
+    <h1>Tin tức và kiến thức định cư Síp</h1>
+    <p id="cats" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="chip" data-c="" style="border:0;cursor:pointer;background:var(--navy);color:#fff">Tất cả ({posts.length})</button>
+      {used.map((c) => <button class="chip" data-c={c} style="border:0;cursor:pointer">{CATS[c]} ({posts.filter((p) => p.category === c).length})</button>)}
+    </p>
+    <div class="grid" id="posts">{posts.map((p) => <div data-c={p.category}><PostCard p={p} /></div>)}</div>
+  </div>
+  <script>
+    const btns = document.querySelectorAll<HTMLButtonElement>('#cats button');
+    btns.forEach((b) => b.addEventListener('click', () => {
+      btns.forEach((x) => { x.style.background = ''; x.style.color = ''; });
+      b.style.background = 'var(--navy)'; b.style.color = '#fff';
+      document.querySelectorAll<HTMLElement>('#posts > div').forEach((d) => { d.style.display = !b.dataset.c || d.dataset.c === b.dataset.c ? '' : 'none'; });
+    }));
+  </script>
+</Base>

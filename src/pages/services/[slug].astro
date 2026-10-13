@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { getServices, fixLinks, tidy, type Service } from '../../lib/db';
+export async function getStaticPaths() {
+  return (await getServices()).map((s) => ({ params: { slug: s.slug }, props: { s } }));
+}
+const { s } = Astro.props as { s: Service };
+const topic = s.slug === 'khao-sat-sip' ? 'khao-sat' : 'lien-he';
+---
+<Base title={s.seo_title ?? s.title} description={s.seo_description}>
+  <div class="wrap narrow">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/dich-vu/">Dịch vụ</a> › {s.title}</p>
+    <h1>{s.title}</h1>
+    <div class="prose" set:html={fixLinks(tidy(s.content_html))} />
+    {s.slug === 'di-tru-sip' && <p><a class="btn" href="/chi-phi/">Tính chi phí diện 6(2)</a></p>}
+    <div style="margin-top:24px"><ContactForm topic={topic} /></div>
+  </div>
+</Base>

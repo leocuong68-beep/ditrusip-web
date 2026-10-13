@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+import ListingCard from '../components/ListingCard.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPages, getPosts, getListings, getServices } from '../lib/db';
+const home = (await getPages()).find((p) => p.slug === 'home');
+const posts = (await getPosts()).slice(0, 6);
+const listings = await getListings();
+const featured = [...listings.filter((l) => l.kind === 'apartment').slice(-3), ...listings.filter((l) => l.kind === 'villa').slice(-3)];
+const services = await getServices();
+const steps = ['Tư vấn thông tin di trú', 'Chọn bất động sản phù hợp', 'Khảo sát, tham quan trực tiếp tại Síp', 'Ký hợp đồng và làm thủ tục', 'Nhận thẻ PR và hỗ trợ an cư'];
+---
+<Base title={home?.seo_title ?? 'Di Trú Síp'} description={home?.seo_description}>
+  <section style="background:linear-gradient(180deg,#EAF6F6 0%,#F8F6F1 100%);padding:56px 0 40px">
+    <div class="wrap" style="display:grid;gap:32px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:center">
+      <div>
+        <span class="chip">Thường trú Síp diện 6(2)</span>
+        <h1 style="margin-top:14px">Thẻ thường trú châu Âu cho gia đình qua đầu tư bất động sản tại Síp</h1>
+        <p class="muted" style="font-size:18px">Chúng tôi là gia đình Việt đã làm hồ sơ thường trú Síp và đang sống ở Paphos. Đội ngũ tư vấn từ bước tìm hiểu, chọn nhà, khảo sát đến khi nhận thẻ, cho vợ chồng và con.</p>
+        <p style="display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn" href="/chi-phi/">Tính chi phí</a>
+          <a class="btn alt" href="/contact-us/">Đặt lịch tư vấn</a>
+        </p>
+      </div>
+      <img src="https://ditrusip.com/wp-content/uploads/2026/02/pexels-freestockpro-30563627-scaled.jpg" alt="Toàn cảnh bến cảng Paphos và lâu đài cổ nhìn từ trên cao" loading="eager" style="aspect-ratio:4/3;object-fit:cover;width:100%" />
+    </div>
+  </section>
+  <div class="waves"></div>
+
+  <section class="band white">
+    <div class="wrap">
+      <h2 style="margin-top:0">Diện thường trú đầu tư bất động sản 6(2)</h2>
+      <p>Công dân ngoài EU mua bất động sản mới tại Síp, giá tối thiểu 300.000 € chưa VAT, có thể xin thẻ thường trú cho bản thân, vợ/chồng và con.</p>
+      <div class="grid">
+        <div class="card"><h3 style="margin-top:0">Gia đình 2 thế hệ</h3><p>Vợ/chồng và con của đương đơn cùng được cấp thường trú.</p></div>
+        <div class="card"><h3 style="margin-top:0">Sống và học tại Síp</h3><p>Gia đình được cư trú dài hạn, con học trường công hoặc trường quốc tế.</p></div>
+        <div class="card"><h3 style="margin-top:0">Duy trì thẻ</h3><p>Có nghĩa vụ duy trì sau khi nhận thẻ. <a href="/duy-tri-the-pr-sip-nghia-vu-sau-khi-nhan-the-va-rui-ro-bi-thu-hoi/">Xem nghĩa vụ và rủi ro</a>.</p></div>
+        <div class="card"><h3 style="margin-top:0">Đánh giá sơ bộ</h3><p>Điều kiện cụ thể về thu nhập và nguồn tiền do luật sư xác nhận theo văn bản hiện hành.</p></div>
+      </div>
+      <p class="note" style="margin-top:18px">Thông tin tham khảo, cập nhật 10/2026. Điều kiện có thể thay đổi; mua nhà có rủi ro như chậm bàn giao, biến động giá và chi phí phát sinh.</p>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <h2 style="margin-top:0">Dịch vụ</h2>
+      <div class="grid">
+        {services.map((s) => (
+          <a class="card" href={`/services/${s.slug}/`} style="text-decoration:none;color:inherit">
+            <h3 style="margin-top:0">{s.title}</h3>
+            <p class="muted">{s.seo_description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="band white">
+    <div class="wrap">
+      <h2 style="margin-top:0">Quy trình làm việc</h2>
+      <ol style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));padding:0;list-style:none;counter-reset:s">
+        {steps.map((s, i) => <li class="card"><b style="color:var(--blue);font-family:Lora,serif;font-size:22px">{String(i + 1).padStart(2, '0')}</b><br />{s}</li>)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+        <h2 style="margin-top:0">Dự án bất động sản</h2>
+        <a href="/projects/">Xem tất cả {listings.length} dự án →</a>
+      </div>
+      <div class="grid">{featured.map((l) => <ListingCard l={l} />)}</div>
+    </div>
+  </section>
+
+  <section class="band white">
+    <div class="wrap">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+        <h2 style="margin-top:0">Tin tức và kiến thức</h2>
+        <a href="/blog/">Xem tất cả →</a>
+      </div>
+      <div class="grid">{posts.map((p) => <PostCard p={p} />)}</div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap card" style="text-align:center;background:var(--aqua);border:0">
+      <h2 style="margin-top:0">Bắt đầu từ một buổi tư vấn</h2>
+      <p>Anh chị cho chúng tôi biết nhu cầu, đội ngũ gửi lại lộ trình và bảng chi phí cho gia đình mình.</p>
+      <p style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" href="/contact-us/">Đặt lịch tư vấn</a><a class="btn alt" href="/services/khao-sat-sip/">Tour khảo sát</a></p>
+    </div>
+  </section>
+</Base>

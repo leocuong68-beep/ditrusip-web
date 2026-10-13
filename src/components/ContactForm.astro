@@ -1,0 +1,47 @@
+---
+// Gửi vào bảng `leads` (source = web). RLS cho phép gửi khi có đồng ý (consent_at).
+import { SUPABASE_URL, SUPABASE_KEY } from '../lib/db';
+const { topic = 'lien-he' } = Astro.props;
+---
+<form class="card" id="lead-form" data-url={SUPABASE_URL} data-key={SUPABASE_KEY} data-topic={topic} style="display:grid;gap:12px">
+  <h3 style="margin:0">Đặt lịch tư vấn</h3>
+  <label>Họ tên<br /><input name="full_name" required maxlength="120" autocomplete="name" /></label>
+  <label>Số WhatsApp / Zalo<br /><input name="contact" required maxlength="40" inputmode="tel" autocomplete="tel" /></label>
+  <label>Chủ đề<br />
+    <select name="topic">
+      <option value="lien-he">Tư vấn chung</option>
+      <option value="khao-sat">Tour khảo sát</option>
+      <option value="chi-phi">Chi phí đầu tư</option>
+      <option value="hoi">Hỏi về hồ sơ</option>
+    </select>
+  </label>
+  <label>Lời nhắn<br /><textarea name="message" rows="4" maxlength="2000"></textarea></label>
+  <label style="display:flex;gap:8px;align-items:flex-start;font-size:14px"><input type="checkbox" name="consent" required style="margin-top:4px" /> Tôi đồng ý để Di Trú Síp lưu thông tin này và liên hệ tư vấn, theo <a href="/chinh-sach-quyen-rieng-tu/">chính sách quyền riêng tư</a>.</label>
+  <button class="btn" type="submit">Gửi</button>
+  <p id="lead-msg" class="muted" role="status" style="margin:0"></p>
+</form>
+<style>
+  #lead-form input:not([type=checkbox]), #lead-form select, #lead-form textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: #fff; margin-top: 4px; }
+</style>
+<script>
+  const f = document.getElementById('lead-form') as HTMLFormElement;
+  const msg = document.getElementById('lead-msg')!;
+  const sel = f.querySelector('select') as HTMLSelectElement;
+  if (f.dataset.topic) sel.value = f.dataset.topic;
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const d = new FormData(f);
+    const btn = f.querySelector('button')!; btn.disabled = true; msg.textContent = 'Đang gửi…';
+    try {
+      const r = await fetch(`${f.dataset.url}/rest/v1/leads`, {
+        method: 'POST',
+        headers: { apikey: f.dataset.key!, Authorization: `Bearer ${f.dataset.key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ source: 'web', full_name: String(d.get('full_name')).trim(), contact: String(d.get('contact')).trim(), topic: d.get('topic'), message: String(d.get('message') || '').trim() || null, consent_at: new Date().toISOString() }),
+      });
+      if (!r.ok) throw new Error(String(r.status));
+      f.reset(); msg.textContent = 'Đã gửi. Đội ngũ sẽ liên hệ anh chị qua WhatsApp/Zalo trong giờ làm việc.';
+    } catch {
+      msg.textContent = 'Chưa gửi được. Anh chị nhắn WhatsApp +357 94 100 091 giúp chúng tôi.';
+    } finally { btn.disabled = false; }
+  });
+</script>

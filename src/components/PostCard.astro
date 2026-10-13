@@ -1,0 +1,12 @@
+---
+import { CATS, fmtDate, type Post } from '../lib/db';
+const { p } = Astro.props as { p: Post };
+---
+<a class="card" href={`/${p.slug}/`} style="text-decoration:none;color:inherit;padding:0;overflow:hidden;display:flex;flex-direction:column">
+  {p.cover_url && <img src={p.cover_url} alt="" loading="lazy" style="aspect-ratio:16/9;object-fit:cover;width:100%;border-radius:0" />}
+  <div style="padding:16px">
+    {p.category && <span class="chip">{CATS[p.category]}</span>} <small class="muted">{fmtDate(p.published_at)}</small>
+    <h3 style="margin:8px 0 6px;font-size:18px">{p.title}</h3>
+    <p class="muted" style="margin:0;font-size:15px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{p.excerpt}</p>
+  </div>
+</a>
