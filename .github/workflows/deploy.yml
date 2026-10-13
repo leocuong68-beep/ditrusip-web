@@ -1,11 +1,11 @@
 # Build web tĩnh từ Supabase và đưa lên GitHub Pages.
-# Chạy khi đẩy code, mỗi ngày 05:30 UTC (sau giờ đăng bài), bấm tay, hoặc khi có bài mới (repository_dispatch "content-updated").
+# Chạy khi đẩy code, 05:00 và 06:00 UTC mỗi ngày (sau giờ đăng bài 7:47 giờ Síp), bấm tay, hoặc khi có bài mới (repository_dispatch "content-updated").
 name: Deploy
 on:
   push:
     branches: [main]
   schedule:
-    - cron: '30 5 * * *'
+    - cron: '0 5,6 * * *'   # ~8:00 giờ Síp cả giờ hè (UTC+3) lẫn giờ đông (UTC+2), sau bài 7:47
   workflow_dispatch:
   repository_dispatch:
     types: [content-updated]
