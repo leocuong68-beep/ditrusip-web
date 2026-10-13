@@ -1,30 +1,37 @@
 ---
-// Ô chat Trợ lý Di trú (Claude) — gọi Edge Function `assistant` trên Supabase.
+// Ô chat Mia — trợ lý di trú (Claude) — gọi Edge Function `assistant` trên Supabase.
 const FN = 'https://egbxinegjmhcdqfprsds.supabase.co/functions/v1/assistant';
 const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
 ---
 <button id="ai-open" class="ai-open" aria-controls="ai-panel" aria-expanded="false">
-  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
-  Hỏi Trợ lý Di trú
+  <img src="/mia.svg" alt="" width="40" height="40" />
+  <span>Hỏi Mia<small>Trợ lý di trú</small></span>
 </button>
-<section id="ai-panel" class="ai-panel" role="dialog" aria-label="Trợ lý Di trú" hidden>
+<section id="ai-panel" class="ai-panel" role="dialog" aria-label="Mia, trợ lý di trú" hidden>
   <header>
-    <div><strong>Trợ lý Di trú</strong><span>Trợ lý AI · thông tin tham khảo</span></div>
+    <img src="/mia.svg" alt="" width="40" height="40" class="ai-av-h" />
+    <div><strong>Mia</strong><span>Trợ lý di trú (AI) · thông tin tham khảo</span></div>
     <button id="ai-new" type="button" title="Cuộc trò chuyện mới">Mới</button>
     <button id="ai-close" type="button" aria-label="Đóng">✕</button>
   </header>
   <div id="ai-log" class="ai-log" aria-live="polite"></div>
   <div id="ai-quick" class="ai-quick"></div>
   <form id="ai-form">
-    <textarea id="ai-input" rows="1" maxlength="1500" placeholder="Nhập câu hỏi…" aria-label="Câu hỏi cho trợ lý"></textarea>
+    <textarea id="ai-input" rows="1" maxlength="1500" placeholder="Nhắn cho Mia…" aria-label="Câu hỏi cho Mia"></textarea>
     <button type="submit" id="ai-send">Gửi</button>
   </form>
   <p class="ai-foot">Trả lời theo thông tin trên ditrusip.com, không phải tư vấn pháp lý. <a href="/chinh-sach-quyen-rieng-tu/">Quyền riêng tư</a></p>
 </section>
 
 <style is:global>
-  .ai-open { position: fixed; right: 16px; bottom: 76px; z-index: 21; display: flex; align-items: center; gap: 8px; background: var(--navy); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px; font: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(14,90,120,.3); }
+  .ai-open { position: fixed; right: 16px; bottom: 76px; z-index: 21; display: flex; align-items: center; gap: 10px; background: var(--navy); color: #fff; border: 0; border-radius: 999px; padding: 6px 18px 6px 6px; text-align: left; font: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(14,90,120,.3); }
   .ai-open[aria-expanded="true"] { display: none; }
+  .ai-open img { width: 40px; height: 40px; border-radius: 50%; display: block; }
+  .ai-open span { display: flex; flex-direction: column; line-height: 1.15; font-size: 15px; }
+  .ai-open small { font-weight: 500; font-size: 12px; opacity: .8; }
+  .ai-av-h { width: 40px; height: 40px; border-radius: 50%; }
+  .ai-row { display: flex; align-items: flex-start; gap: 8px; }
+  .ai-row img { width: 28px; height: 28px; border-radius: 50%; flex: none; margin-top: 2px; }
   .ai-panel { position: fixed; right: 16px; bottom: 16px; z-index: 30; width: min(400px, calc(100vw - 32px)); height: min(620px, calc(100vh - 32px)); background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 18px 50px rgba(14,90,120,.25); display: flex; flex-direction: column; overflow: hidden; }
   .ai-panel[hidden] { display: none; }
   .ai-panel header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: var(--navy); color: #fff; }
@@ -57,7 +64,7 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
     const $ = id => document.getElementById(id);
     const open = $('ai-open'), panel = $('ai-panel'), log = $('ai-log'), quick = $('ai-quick'), form = $('ai-form'), input = $('ai-input'), send = $('ai-send');
     const STORE = 'ditrusip.ai.v1';
-    const HELLO = 'Chào anh/chị, em là Trợ lý Di trú của Di Trú Síp. Em có thể giải đáp về thẻ thường trú Síp diện đầu tư 6(2), chi phí, dự án, tour khảo sát và an cư ở Paphos, rồi hẹn anh/chị gọi với chuyên viên. Anh/chị đang quan tâm điều gì ạ?';
+    const HELLO = 'Chào anh/chị, em là Mia, trợ lý di trú của Di Trú Síp. Em có thể giải đáp về thẻ thường trú Síp diện đầu tư 6(2), chi phí, dự án, tour khảo sát và an cư ở Paphos, rồi hẹn anh/chị gọi với chuyên viên. Anh/chị đang quan tâm điều gì ạ?';
     const QUICK = ['Điều kiện thẻ thường trú 6(2)', 'Chi phí cho gia đình tôi', 'Tour khảo sát', 'Hẹn lịch gọi tư vấn'];
     let state = { session: null, msgs: [] };
     try { const v = JSON.parse(sessionStorage.getItem(STORE) || 'null'); if (v && Array.isArray(v.msgs)) state = v; } catch {}
@@ -68,7 +75,9 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
       const d = document.createElement('div');
       d.className = 'ai-msg ' + (role === 'user' ? 'me' : 'bot');
       d.innerHTML = fmt(text) + (note ? `<span class="ok">✓ ${esc(note)}</span>` : '');
-      log.appendChild(d); log.scrollTop = log.scrollHeight; return d;
+      let el = d;
+      if (role !== 'user') { el = document.createElement('div'); el.className = 'ai-row'; el.innerHTML = '<img src="/mia.svg" alt="">'; el.appendChild(d); }
+      log.appendChild(el); log.scrollTop = log.scrollHeight; return el;
     }
     function render() {
       log.innerHTML = ''; bubble('assistant', HELLO);
@@ -80,7 +89,7 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
       text = text.trim(); if (!text || send.disabled) return;
       state.msgs.push({ role: 'user', content: text }); save(); render();
       input.value = ''; send.disabled = true;
-      const wait = bubble('assistant', 'Đang trả lời…'); wait.classList.add('typing');
+      const wait = bubble('assistant', 'Mia đang trả lời…'); wait.querySelector('.ai-msg').classList.add('typing');
       try {
         const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify({ source: 'web', session_id: state.session, messages: state.msgs.map(m => ({ role: m.role, content: m.content })) }) });
         const d = await r.json();
