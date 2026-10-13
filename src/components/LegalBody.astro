@@ -1,0 +1,12 @@
+---
+// Hiện một đoạn văn có dòng "- " thành danh sách.
+const { text } = Astro.props as { text: string };
+const blocks: { list: boolean; lines: string[] }[] = [];
+for (const line of text.split('\n')) {
+  const list = line.startsWith('- ');
+  const last = blocks[blocks.length - 1];
+  if (last && last.list === list && list) last.lines.push(line.slice(2));
+  else blocks.push({ list, lines: [list ? line.slice(2) : line] });
+}
+---
+{blocks.map(b => b.list ? <ul>{b.lines.map(l => <li>{l}</li>)}</ul> : <p>{b.lines[0]}</p>)}

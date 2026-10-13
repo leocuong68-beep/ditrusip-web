@@ -87,6 +87,8 @@ const path = Astro.url.pathname;
     .prose table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; font-size: 15px; }
     .prose th, .prose td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
     .prose th { background: var(--aqua); }
+    .prose ul { padding-left: 22px; }
+    .prose li { margin: 4px 0; }
     .prose blockquote { margin: 1em 0; padding: 8px 16px; border-left: 4px solid var(--blue); background: #fff; }
     section.band { padding: 48px 0; }
     section.band.white { background: #fff; }
@@ -139,7 +141,7 @@ const path = Astro.url.pathname;
           <p><a href={social.youtube} rel="noopener">YouTube Cường Đảo Síp</a><br /><a href={social.facebook} rel="noopener">Facebook Cường Đảo Síp</a></p>
         </div>
       </div>
-      <p style="margin-top:24px;font-size:13px;opacity:.8">Thông tin trên web mang tính tham khảo, không phải tư vấn pháp lý. Điều kiện và chi phí có thể thay đổi; đội ngũ xác nhận theo văn bản hiện hành khi tư vấn. © {new Date().getFullYear()} Di Trú Síp · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a></p>
+      <p style="margin-top:24px;font-size:13px;opacity:.8">Thông tin trên web mang tính tham khảo, không phải tư vấn pháp lý. Điều kiện và chi phí có thể thay đổi; đội ngũ xác nhận theo văn bản hiện hành khi tư vấn. © {new Date().getFullYear()} Di Trú Síp · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a> · <a href="/dieu-khoan/">Điều khoản</a> · <a href="/ho-tro/">Hỗ trợ</a> · <a href="/xoa-tai-khoan/">Xoá tài khoản</a></p>
     </div>
   </footer>
   <a class="wa-float" href={contact.whatsapp} rel="noopener">WhatsApp</a>

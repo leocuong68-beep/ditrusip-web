@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import LegalBody from '../components/LegalBody.astro';
+import { getSetting } from '../lib/db';
+const contact = await getSetting('contact');
+const T: [string, string][] = [
+  ['Dịch vụ cung cấp gì', 'Website ditrusip.com và ứng dụng Di Trú Síp cung cấp thông tin tham khảo về thường trú Síp diện đầu tư bất động sản 6(2), chi phí dự toán, dự án bất động sản, tin tức, sự kiện và an cư tại Síp; công cụ đánh giá hồ sơ sơ bộ; trợ lý AI Mia; đặt lịch tư vấn; và phần theo dõi hồ sơ cho khách đã ký hợp đồng dịch vụ với Di Trú Síp (công ty EUWay).'],
+  ['Thông tin tham khảo, không phải tư vấn pháp lý', 'Nội dung, kết quả đánh giá hồ sơ, dự toán chi phí và câu trả lời của Mia chỉ để tham khảo, không phải tư vấn pháp lý, thuế hay đầu tư, và không bảo đảm hồ sơ được chấp thuận. Điều kiện, lệ phí và giá có thể thay đổi; đội ngũ và luật sư sẽ xác nhận theo văn bản hiện hành và hồ sơ cụ thể của anh chị. Dự án đang xây có rủi ro chậm bàn giao; anh chị nên để luật sư độc lập kiểm tra pháp lý trước khi đặt cọc.'],
+  ['Trợ lý Mia', 'Mia là trợ lý AI, có thể trả lời chưa chính xác hoặc chưa đầy đủ. Mia không thay chuyên viên hay luật sư. Tin nhắn được xử lý bởi Anthropic (mô hình Claude) như mô tả trong Chính sách quyền riêng tư. Anh chị không gửi số giấy tờ, tài khoản ngân hàng hay thông tin sức khoẻ qua ô trò chuyện.'],
+  ['Tài khoản', 'Anh chị đăng nhập bằng email và mã gồm 6 số. Anh chị giữ quyền truy cập email của mình và chịu trách nhiệm với hoạt động trên tài khoản. Anh chị xoá được tài khoản bất cứ lúc nào trong mục Tài khoản của ứng dụng.'],
+  ['Phí dịch vụ', 'Ứng dụng và website miễn phí. Phí dịch vụ tư vấn và đồng hành (nếu anh chị chọn sử dụng) được thoả thuận và thanh toán theo hợp đồng ký riêng với Di Trú Síp, không thanh toán trong ứng dụng.'],
+  ['Điều anh chị không nên làm', '- Gửi thông tin sai, mạo danh người khác hoặc gửi thông tin của người khác khi chưa được đồng ý.\n- Dùng dịch vụ hoặc Mia để gửi nội dung vi phạm pháp luật, quấy rối, spam, hoặc cố tình làm quá tải hệ thống.\n- Sao chép, khai thác dữ liệu hàng loạt từ website và ứng dụng.'],
+  ['Quyền sở hữu nội dung', 'Bài viết, hình ảnh, video và thiết kế thuộc Di Trú Síp, kênh Cường Đảo Síp hoặc bên cấp phép. Anh chị được xem và chia sẻ đường link; không sao chép để dùng vào mục đích thương mại khi chưa được đồng ý.'],
+  ['Thay đổi và gián đoạn', 'Chúng tôi có thể thay đổi, tạm ngưng hoặc ngừng một phần dịch vụ, ví dụ để bảo trì hoặc cập nhật quy định.'],
+  ['Giới hạn trách nhiệm', 'Trong phạm vi pháp luật cho phép, Di Trú Síp không chịu trách nhiệm với quyết định anh chị đưa ra chỉ dựa vào thông tin tham khảo trên website, ứng dụng hay câu trả lời của Mia mà chưa được đội ngũ xác nhận bằng văn bản.'],
+  ['Luật áp dụng', 'Điều khoản này theo pháp luật Cộng hoà Síp. Quyền của người tiêu dùng theo luật nơi anh chị cư trú vẫn được giữ nguyên.'],
+];
+---
+<Base title="Điều Khoản Sử Dụng | Di Trú Síp" description="Điều khoản sử dụng website ditrusip.com, ứng dụng Di Trú Síp và trợ lý Mia.">
+  <div class="wrap narrow prose">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Điều khoản sử dụng</p>
+    <h1>Điều khoản sử dụng</h1>
+    <p class="muted">Có hiệu lực từ ngày 13 tháng 10 năm 2026. Khi dùng website, ứng dụng Di Trú Síp hoặc trò chuyện với Mia, anh chị đồng ý với các điều khoản dưới đây.</p>
+    {T.map(([h, b], i) => <><h2>{i + 1}. {h}</h2><LegalBody text={b} /></>)}
+    <h2>{T.length + 1}. Liên hệ</h2>
+    <p>Email <a href={`mailto:${contact.email}`}>{contact.email}</a> · WhatsApp/Zalo {contact.phone_cy}. Xem thêm <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a>.</p>
+  </div>
+</Base>

@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import { getSetting } from '../lib/db';
+const contact = await getSetting('contact');
+const Q: [string, string][] = [
+  ['Đăng nhập', 'Phần lớn ứng dụng dùng được mà không cần tài khoản. Khách đã ký hợp đồng đăng nhập ở tab Hồ sơ bằng email đã đăng ký: nhập email, nhận mã 6 số trong hộp thư (kiểm tra cả thư rác), nhập mã. Mã hết hạn sau ít phút; nếu không nhận được, bấm gửi lại sau 1 phút.'],
+  ['Hồ sơ của tôi', 'Sau khi ký hợp đồng dịch vụ, đội ngũ mở hồ sơ gắn với email của anh chị. Anh chị xem tiến trình, giấy tờ cần nộp, lịch hẹn và cập nhật. Muốn xem thử giao diện, bấm “Xem hồ sơ mẫu” (tên và số liệu giả).'],
+  ['Trò chuyện với Mia', 'Mia là trợ lý AI trả lời theo thông tin trên ditrusip.com và có thể hẹn anh chị gọi với chuyên viên. Mia có thể trả lời chưa chính xác; thông tin quan trọng sẽ được chuyên viên xác nhận. Họ tên và số liên lạc chỉ được lưu khi anh chị bấm “Đồng ý lưu”.'],
+  ['Thông báo', 'Vào Thông báo (biểu tượng chuông) → Bật thông báo, rồi chọn loại tin muốn nhận. Muốn tắt hẳn, vào Cài đặt của iPhone → Di Trú Síp → Thông báo.'],
+  ['Xoá tài khoản', 'Vào Tài khoản → Xoá tài khoản. Xem chi tiết dữ liệu được xoá tại trang Xoá tài khoản.'],
+  ['Thông tin trong ứng dụng', 'Nội dung, dự toán chi phí và câu trả lời của Mia là thông tin tham khảo, không phải tư vấn pháp lý, thuế hay đầu tư. Giá dự án theo thông tin công bố, có thể thay đổi.'],
+];
+---
+<Base title="Hỗ Trợ | Di Trú Síp" description="Câu hỏi thường gặp khi dùng ứng dụng Di Trú Síp và cách liên hệ hỗ trợ.">
+  <div class="wrap narrow prose">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Hỗ trợ</p>
+    <h1>Hỗ trợ</h1>
+    <p>Cần giúp đỡ? Gửi thư tới <a href={`mailto:${contact.email}`}>{contact.email}</a> hoặc nhắn WhatsApp/Zalo <a href={`tel:${contact.phone_cy?.replace(/\s/g, '')}`}>{contact.phone_cy}</a>. Anh chị ghi kèm tên thiết bị và mô tả ngắn điều đang gặp; chúng tôi trả lời trong vòng 2 ngày làm việc (giờ Síp).</p>
+    {Q.map(([h, b]) => <><h2>{h}</h2><p>{b}</p></>)}
+    <h2>Tài liệu</h2>
+    <p><a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a> · <a href="/dieu-khoan/">Điều khoản sử dụng</a> · <a href="/xoa-tai-khoan/">Xoá tài khoản</a></p>
+  </div>
+</Base>

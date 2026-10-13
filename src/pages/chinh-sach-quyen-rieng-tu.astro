@@ -1,25 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
+import LegalBody from '../components/LegalBody.astro';
 import { getSetting } from '../lib/db';
+import { PRIVACY, PRIVACY_DATE } from '../shared/privacy';
 const contact = await getSetting('contact');
-const S: [string, string][] = [
-  ['Ai chịu trách nhiệm', 'Di Trú Síp (ditrusip.com), thuộc công ty EUWay, đơn vị tư vấn định cư và bất động sản tại Paphos, Cộng hoà Síp, chịu trách nhiệm về dữ liệu anh chị cung cấp qua website và ứng dụng Di Trú Síp.'],
-  ['Chúng tôi thu thập gì', 'Họ tên, số WhatsApp/Zalo, chủ đề và lời nhắn anh chị nhập vào form đặt lịch. Ứng dụng có thể lưu thêm email đăng nhập, căn đã lưu, cài đặt thông báo và mã thông báo đẩy nếu anh chị cho phép.'],
-  ['Chúng tôi không thu thập', 'Ảnh hộ chiếu, sao kê ngân hàng hay bản chụp giấy tờ qua website. Máy tính chi phí chạy ngay trên trình duyệt, không gửi số liệu anh chị nhập.'],
-  ['Mục đích', 'Liên hệ tư vấn theo yêu cầu của anh chị và theo dõi hồ sơ cho khách đã ký hợp đồng.'],
-  ['Nơi lưu và bảo mật', 'Dữ liệu lưu trên máy chủ Supabase đặt tại Frankfurt (Đức, trong EU). Chỉ nhân viên Di Trú Síp có quyền xem để xử lý yêu cầu.'],
-  ['Thời hạn lưu', 'Thông tin của khách chưa ký hợp đồng được xoá sau 24 tháng không liên hệ. Hồ sơ khách đã ký được lưu theo thời hạn luật kế toán Síp yêu cầu. Khi anh chị xoá tài khoản trong ứng dụng, dữ liệu tài khoản được xoá ngay.'],
-  ['Dịch vụ bên ngoài', 'Website dùng phông chữ Google Fonts. Video mở trên YouTube, tin nhắn mở trên WhatsApp; các dịch vụ đó có chính sách riêng.'],
-  ['Quyền của anh chị', 'Xem, sửa, xoá dữ liệu của mình và rút lại đồng ý bất cứ lúc nào bằng cách liên hệ chúng tôi. Anh chị cũng có quyền khiếu nại tới Văn phòng Ủy viên Bảo vệ Dữ liệu Cá nhân Síp.'],
-];
 ---
-<Base title="Chính Sách Quyền Riêng Tư | Di Trú Síp" description="Cách Di Trú Síp thu thập, sử dụng và lưu trữ dữ liệu cá nhân trên website và ứng dụng.">
-  <div class="wrap narrow">
+<Base title="Chính Sách Quyền Riêng Tư | Di Trú Síp" description="Cách Di Trú Síp thu thập, sử dụng và lưu trữ dữ liệu cá nhân trên website, ứng dụng và trợ lý Mia.">
+  <div class="wrap narrow prose">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › Chính sách quyền riêng tư</p>
     <h1>Chính sách quyền riêng tư</h1>
-    {S.map(([h, b]) => <><h2>{h}</h2><p>{b}</p></>)}
-    <h2>Liên hệ</h2>
-    <p>Email <a href={`mailto:${contact.email}`}>{contact.email}</a> · WhatsApp/Zalo {contact.phone_cy}</p>
-    <p class="muted">Cập nhật 13/10/2026.</p>
+    <p class="muted">Có hiệu lực từ ngày {PRIVACY_DATE}. Áp dụng cho website ditrusip.com, ứng dụng Di Trú Síp và trợ lý Mia.</p>
+    {PRIVACY.map(([h, b], i) => <><h2>{i + 1}. {h}</h2><LegalBody text={b} /></>)}
+    <h2>{PRIVACY.length + 1}. Liên hệ</h2>
+    <p>Email <a href={`mailto:${contact.email}`}>{contact.email}</a> · WhatsApp/Zalo {contact.phone_cy}. Xem thêm <a href="/dieu-khoan/">Điều khoản sử dụng</a> và <a href="/xoa-tai-khoan/">cách xoá tài khoản</a>.</p>
   </div>
 </Base>

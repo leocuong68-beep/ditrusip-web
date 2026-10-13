@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import { getSetting } from '../lib/db';
+const contact = await getSetting('contact');
+---
+<Base title="Xoá Tài Khoản | Di Trú Síp" description="Cách xoá tài khoản ứng dụng Di Trú Síp và dữ liệu đi kèm.">
+  <div class="wrap narrow prose">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › Xoá tài khoản</p>
+    <h1>Xoá tài khoản</h1>
+    <p class="muted">Ứng dụng Di Trú Síp</p>
+    <h2>Cách 1: xoá ngay trong ứng dụng</h2>
+    <p>Mở ứng dụng Di Trú Síp, đăng nhập đúng tài khoản cần xoá. Vào <strong>Tài khoản</strong> (biểu tượng người ở góc trên trang chủ, hoặc tab Hồ sơ → Tài khoản) → <strong>Xoá tài khoản</strong> → xác nhận. Tài khoản bị xoá ngay lập tức.</p>
+    <h2>Cách 2: gửi yêu cầu qua email</h2>
+    <p>Nếu không mở được ứng dụng, anh chị gửi thư từ email đăng nhập tới <a href={`mailto:${contact.email}?subject=Yêu cầu xoá tài khoản`}>{contact.email}</a>, tiêu đề "Yêu cầu xoá tài khoản". Chúng tôi xác nhận và xoá trong vòng 7 ngày. Cách này cũng dùng được để xoá cuộc trò chuyện với Mia trên web khi anh chị không có tài khoản: ghi kèm thời điểm trò chuyện và số liên lạc đã để lại.</p>
+    <h2>Dữ liệu được xoá</h2>
+    <ul>
+      <li>Tài khoản đăng nhập (email, mã tài khoản) và hồ sơ cá nhân trong ứng dụng.</li>
+      <li>Yêu cầu tư vấn đã gửi, kể cả thông tin đã lưu qua Mia.</li>
+      <li>Các cuộc trò chuyện với Mia gắn với tài khoản.</li>
+      <li>Mã thông báo đẩy, thông báo và cài đặt nhận tin.</li>
+      <li>Dữ liệu lưu trên máy (căn đã lưu, lịch sử trò chuyện trên máy).</li>
+    </ul>
+    <h2>Dữ liệu được giữ lại</h2>
+    <p>Nếu anh chị đã ký hợp đồng dịch vụ, hồ sơ dịch vụ và chứng từ liên quan được lưu theo thời hạn luật kế toán và pháp lý Síp yêu cầu, không còn gắn với tài khoản ứng dụng. Xem <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a>.</p>
+  </div>
+</Base>

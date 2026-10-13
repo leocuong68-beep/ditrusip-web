@@ -1,7 +1,7 @@
 import { getPosts, getPages, getServices, getListings } from '../lib/db';
 export async function GET() {
   const site = 'https://ditrusip.com';
-  const u: [string, string?][] = [['/'], ['/blog/'], ['/projects/'], ['/chi-phi/'], ['/chinh-sach-quyen-rieng-tu/']];
+  const u: [string, string?][] = [['/'], ['/blog/'], ['/projects/'], ['/chi-phi/'], ['/chinh-sach-quyen-rieng-tu/'], ['/dieu-khoan/'], ['/ho-tro/'], ['/xoa-tai-khoan/']];
   for (const p of await getPages()) if (!['home', 'blog'].includes(p.slug)) u.push([`/${p.slug}/`, p.updated_at]);
   for (const s of await getServices()) u.push([`/services/${s.slug}/`, s.updated_at]);
   for (const l of await getListings()) u.push([`/projects/${l.slug}/`, l.synced_at]);
