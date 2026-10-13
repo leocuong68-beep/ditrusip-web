@@ -14,6 +14,15 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
     <button id="ai-new" type="button" title="Cuộc trò chuyện mới">Mới</button>
     <button id="ai-close" type="button" aria-label="Đóng">✕</button>
   </header>
+  <div id="ai-consent" class="ai-consent" hidden>
+    <img src="/mia.svg" alt="" width="72" height="72" />
+    <h3>Trước khi trò chuyện với Mia</h3>
+    <p>Mia là trợ lý AI (không phải người thật). Để trả lời, tin nhắn của anh chị được gửi tới <strong>Anthropic</strong>, công ty cung cấp mô hình AI Claude, để xử lý. Di Trú Síp lưu cuộc trò chuyện tối đa 24 tháng để đội ngũ hỗ trợ anh chị.</p>
+    <p>Họ tên, số liên lạc chỉ được lưu khi anh chị bấm "Đồng ý lưu". Xin đừng gửi số hộ chiếu, tài khoản ngân hàng hay thông tin sức khoẻ qua đây.</p>
+    <p><a href="/chinh-sach-quyen-rieng-tu/" target="_blank">Chính sách quyền riêng tư</a></p>
+    <button type="button" id="ai-agree">Đồng ý và bắt đầu</button>
+    <button type="button" id="ai-decline" class="ghost">Để sau</button>
+  </div>
   <div id="ai-log" class="ai-log" aria-live="polite"></div>
   <div id="ai-quick" class="ai-quick"></div>
   <form id="ai-form">
@@ -48,10 +57,22 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
   .ai-msg.typing { color: var(--muted); }
   .ai-quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 8px; background: var(--bg); }
   .ai-quick button { border: 1.5px solid var(--blue); background: #fff; color: var(--navy); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  #ai-form[hidden], .ai-log[hidden], .ai-quick[hidden] { display: none; }
   #ai-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
   #ai-input { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 18px; padding: 10px 14px; font: inherit; font-size: 15px; max-height: 120px; background: var(--bg); color: var(--ink); }
   #ai-send { border: 0; border-radius: 18px; padding: 0 16px; background: var(--orange); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
   #ai-send:disabled { opacity: .5; cursor: default; }
+  .ai-consent { flex: 1; overflow-y: auto; padding: 18px; background: var(--bg); text-align: center; font-size: 14.5px; line-height: 1.55; }
+  .ai-consent[hidden] { display: none; }
+  .ai-consent img { border-radius: 50%; }
+  .ai-consent h3 { margin: 8px 0; font-size: 18px; }
+  .ai-consent p { text-align: left; margin: 0 0 10px; }
+  .ai-consent button, .ai-card button { display: block; width: 100%; border: 0; border-radius: 999px; padding: 11px; margin-top: 8px; font: inherit; font-weight: 700; cursor: pointer; background: var(--navy); color: #fff; }
+  .ai-consent button.ghost, .ai-card button.ghost { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+  .ai-card { margin: 0 0 10px 36px; padding: 12px 14px; background: #fff; border: 1.5px solid var(--blue); border-radius: 14px; font-size: 14px; }
+  .ai-card strong { display: block; color: var(--navy); margin-bottom: 6px; }
+  .ai-card ul { margin: 0 0 6px; padding-left: 18px; }
+  .ai-card small { color: var(--muted); }
   .ai-foot { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); }
   @media (max-width: 520px) {
     .ai-panel { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; }
@@ -64,11 +85,15 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
     const $ = id => document.getElementById(id);
     const open = $('ai-open'), panel = $('ai-panel'), log = $('ai-log'), quick = $('ai-quick'), form = $('ai-form'), input = $('ai-input'), send = $('ai-send');
     const STORE = 'ditrusip.ai.v1';
+    const CONSENT = 'ditrusip.ai.consent.v1';
+    const consentBox = $('ai-consent');
+    let consented = false;
+    try { consented = localStorage.getItem(CONSENT) === '1'; } catch {}
     const HELLO = 'Chào anh/chị, em là Mia, trợ lý di trú của Di Trú Síp. Em có thể giải đáp về thẻ thường trú Síp diện đầu tư 6(2), chi phí, dự án, tour khảo sát và an cư ở Paphos, rồi hẹn anh/chị gọi với chuyên viên. Anh/chị đang quan tâm điều gì ạ?';
     const QUICK = ['Điều kiện thẻ thường trú 6(2)', 'Chi phí cho gia đình tôi', 'Tour khảo sát', 'Hẹn lịch gọi tư vấn'];
     let state = { session: null, msgs: [] };
     try { const v = JSON.parse(sessionStorage.getItem(STORE) || 'null'); if (v && Array.isArray(v.msgs)) state = v; } catch {}
-    const save = () => { try { sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, msgs: state.msgs.slice(-60) })); } catch {} };
+    const save = () => { try { sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, msgs: state.msgs.slice(-60), confirm: state.confirm || null })); } catch {} };
     const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const fmt = s => esc(s.replace(/\*\*/g, '')).replace(/(https?:\/\/[^\s)<]+[^\s)<.,;])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
     function bubble(role, text, note) {
@@ -79,9 +104,20 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
       if (role !== 'user') { el = document.createElement('div'); el.className = 'ai-row'; el.innerHTML = '<img src="/mia.svg" alt="">'; el.appendChild(d); }
       log.appendChild(el); log.scrollTop = log.scrollHeight; return el;
     }
+    function card(c) {
+      const d = document.createElement('div'); d.className = 'ai-card';
+      d.innerHTML = `<strong>${esc(c.title)}</strong><ul>${c.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul><small>Lưu để đội ngũ Di Trú Síp liên hệ tư vấn. <a href="/chinh-sach-quyen-rieng-tu/" target="_blank">Chính sách quyền riêng tư</a></small><button type="button">Đồng ý lưu</button><button type="button" class="ghost">Không lưu</button>`;
+      const [yes, no] = d.querySelectorAll('button');
+      yes.onclick = () => confirmSave(true); no.onclick = () => confirmSave(false);
+      log.appendChild(d); log.scrollTop = log.scrollHeight;
+    }
     function render() {
+      const gate = !consented;
+      consentBox.hidden = !gate; log.hidden = gate; quick.hidden = gate; form.hidden = gate;
+      if (gate) return;
       log.innerHTML = ''; bubble('assistant', HELLO);
       state.msgs.forEach(m => bubble(m.role, m.content, m.note));
+      if (state.confirm) card(state.confirm);
       quick.innerHTML = '';
       if (!state.msgs.length) QUICK.forEach(q => { const b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.onclick = () => ask(q); quick.appendChild(b); });
     }
@@ -91,21 +127,38 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
       input.value = ''; send.disabled = true;
       const wait = bubble('assistant', 'Mia đang trả lời…'); wait.querySelector('.ai-msg').classList.add('typing');
       try {
-        const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify({ source: 'web', session_id: state.session, messages: state.msgs.map(m => ({ role: m.role, content: m.content })) }) });
-        const d = await r.json();
-        if (!d.reply) throw new Error('no reply');
-        if (d.session_id) state.session = d.session_id;
-        const ev = d.events || [];
-        state.msgs.push({ role: 'assistant', content: d.reply, note: ev.includes('call_booked') ? 'Đã ghi yêu cầu hẹn gọi' : ev.includes('lead_saved') ? 'Đã lưu thông tin để đội ngũ liên hệ' : undefined });
+        const d = await call({});
+        state.msgs.push({ role: 'assistant', content: d.reply });
+        state.confirm = d.confirm || null;
       } catch {
         state.msgs.push({ role: 'assistant', content: 'Xin lỗi anh/chị, em chưa kết nối được. Anh/chị thử lại sau ít phút hoặc nhắn WhatsApp/Zalo +357 94 100 091.' });
       }
       save(); render(); send.disabled = false; input.focus();
     }
-    function toggle(show) { panel.hidden = !show; open.setAttribute('aria-expanded', String(show)); if (show) { render(); input.focus(); } }
+    async function call(extra) {
+      const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify({ source: 'web', ai_consent: true, session_id: state.session, messages: state.msgs.map(m => ({ role: m.role, content: m.content })), ...extra }) });
+      const d = await r.json();
+      if (!d.reply) throw new Error('no reply');
+      if (d.session_id) state.session = d.session_id;
+      return d;
+    }
+    async function confirmSave(ok) {
+      state.confirm = null; save(); render(); send.disabled = true;
+      try {
+        const d = await call({ confirm: ok });
+        const ev = d.events || [];
+        state.msgs.push({ role: 'assistant', content: d.reply, note: ev.includes('call_booked') ? 'Đã ghi yêu cầu hẹn gọi' : ev.includes('lead_saved') ? 'Đã lưu thông tin để đội ngũ liên hệ' : undefined });
+      } catch {
+        state.msgs.push({ role: 'assistant', content: 'Xin lỗi anh/chị, em chưa lưu được. Anh/chị nhắn WhatsApp/Zalo +357 94 100 091 giúp em nhé.' });
+      }
+      save(); render(); send.disabled = false;
+    }
+    $('ai-agree').onclick = () => { consented = true; try { localStorage.setItem(CONSENT, '1'); } catch {} render(); input.focus(); };
+    $('ai-decline').onclick = () => toggle(false);
+    function toggle(show) { panel.hidden = !show; open.setAttribute('aria-expanded', String(show)); if (show) { render(); if (consented) input.focus(); } }
     open.onclick = () => toggle(true);
     $('ai-close').onclick = () => toggle(false);
-    $('ai-new').onclick = () => { state = { session: null, msgs: [] }; save(); render(); };
+    $('ai-new').onclick = () => { state = { session: null, msgs: [], confirm: null }; save(); render(); };
     form.onsubmit = e => { e.preventDefault(); ask(input.value); };
     input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(input.value); } });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) toggle(false); });
