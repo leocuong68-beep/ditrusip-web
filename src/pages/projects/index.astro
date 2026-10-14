@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ListingCard from '../../components/ListingCard.astro';
+import Partners from '../../components/Partners.astro';
 import { getListings } from '../../lib/db';
 const listings = await getListings();
 const areas = [...new Set(listings.map((l) => l.area))];
@@ -17,6 +18,7 @@ const areas = [...new Set(listings.map((l) => l.area))];
     </form>
     <div class="grid" id="list">{listings.map((l) => <div data-kind={l.kind} data-area={l.area} data-price={l.price_from}><ListingCard l={l} /></div>)}</div>
     <p id="empty" class="muted" hidden>Chưa có dự án hợp tiêu chí. Anh chị nhắn đội ngũ để được báo khi có căn mới.</p>
+    <Partners />
     <p class="note" style="margin-top:24px">Giá và tiến độ do chủ đầu tư cung cấp, có thể thay đổi. Mua nhà đang xây có rủi ro chậm bàn giao; anh chị nên để luật sư kiểm tra sổ đỏ, giấy phép xây dựng và hợp đồng trước khi đặt cọc.</p>
   </div>
   <style>#filter select{padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;margin-top:4px}</style>

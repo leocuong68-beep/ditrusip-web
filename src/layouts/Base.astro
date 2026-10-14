@@ -7,14 +7,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const contact = await getSetting('contact');
 const social = await getSetting('social');
 const org = {
-  '@context': 'https://schema.org', '@type': 'Organization', name: 'Di Trú Síp', founder: { '@type': 'Person', name: 'Đặng Thái Cường' },
+  '@context': 'https://schema.org', '@type': 'Organization', name: 'EUWay - Di Trú Síp', alternateName: ['Di Trú Síp', 'EUWay'], founder: { '@type': 'Person', name: 'Đặng Thái Cường' },
   url: 'https://ditrusip.com', email: contact.email, telephone: contact.phone_cy,
   address: { '@type': 'PostalAddress', addressLocality: 'Paphos', addressCountry: 'CY' },
   sameAs: [social.youtube, social.facebook].filter(Boolean),
 };
 const nav = [
   ['/ve-chung-toi/', 'Về chúng tôi'], ['/dich-vu/', 'Dịch vụ'], ['/projects/', 'Dự án BĐS'],
-  ['/chi-phi/', 'Chi phí 6(2)'], ['/blog/', 'Tin tức'], ['/contact-us/', 'Liên hệ'],
+  ['/chi-phi/', 'Chi phí 6(2)'], ['/an-cu/', 'An cư'], ['/blog/', 'Tin tức'], ['/contact-us/', 'Liên hệ'],
 ];
 const path = Astro.url.pathname;
 ---
@@ -32,8 +32,9 @@ const path = Astro.url.pathname;
   <meta property="og:title" content={title} />
   {description && <meta property="og:description" content={description} />}
   <meta property="og:url" content={canonical} />
-  <meta property="og:site_name" content="Di Trú Síp" />
-  {image && <meta property="og:image" content={image} />}
+  <meta property="og:site_name" content="EUWay - Di Trú Síp" />
+  <meta property="og:image" content={image || 'https://ditrusip.com/og-default.jpg'} />
+  <meta property="og:image:alt" content={title} />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -62,6 +63,9 @@ const path = Astro.url.pathname;
     header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
     .brand { font-family: 'Lora', serif; font-weight: 700; font-size: 22px; color: var(--navy); text-decoration: none; display: flex; align-items: center; gap: 8px; }
     .brand span { color: var(--blue); }
+    .brand .eu { color: var(--navy); }
+    .brand .sep { color: var(--muted); font-weight: 500; margin: 0 -2px; }
+    @media (max-width: 380px) { .brand { font-size: 19px; } }
     nav.main { display: flex; gap: 4px; flex-wrap: wrap; }
     nav.main a { text-decoration: none; color: var(--ink); padding: 8px 12px; border-radius: 999px; font-weight: 500; font-size: 15px; }
     nav.main a[aria-current] , nav.main a:hover { background: var(--aqua); color: var(--navy); }
@@ -107,7 +111,7 @@ const path = Astro.url.pathname;
     <div class="wrap">
       <a class="brand" href="/">
         <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 28V16a12 12 0 0 1 24 0v12z" fill="#2457A6"/><path d="M10 28v-8a6 6 0 0 1 12 0v8z" fill="#fff"/><path d="M0 28h32v4H0z" fill="#1C9DB0"/></svg>
-        Di Trú <span>Síp</span>
+        <span class="eu">EUWay</span><span class="sep">-</span>Di Trú <span>Síp</span>
       </a>
       <nav class="main" aria-label="Menu chính">
         {nav.map(([href, label]) => <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>)}
@@ -123,13 +127,12 @@ const path = Astro.url.pathname;
     <div class="wrap">
       <div class="cols">
         <div>
-          <h4>Di Trú Síp</h4>
+          <h4>EUWay - Di Trú Síp</h4>
           <p>Tư vấn thường trú Síp diện đầu tư bất động sản 6(2), tour khảo sát, bất động sản và an cư tại Paphos.</p>
         </div>
         <div>
           <h4>Liên hệ</h4>
           <p>Síp: <a href={`tel:${contact.phone_cy?.replace(/\s/g, '')}`}>{contact.phone_cy}</a><br />
-          Việt Nam: <a href={`tel:${contact.phone_vn?.replace(/\s/g, '')}`}>{contact.phone_vn}</a><br />
           Email: <a href={`mailto:${contact.email}`}>{contact.email}</a></p>
         </div>
         <div>
@@ -141,7 +144,7 @@ const path = Astro.url.pathname;
           <p><a href={social.youtube} rel="noopener">YouTube Cường Đảo Síp</a><br /><a href={social.facebook} rel="noopener">Facebook Cường Đảo Síp</a></p>
         </div>
       </div>
-      <p style="margin-top:24px;font-size:13px;opacity:.8">Thông tin trên web mang tính tham khảo, không phải tư vấn pháp lý. Điều kiện và chi phí có thể thay đổi; đội ngũ xác nhận theo văn bản hiện hành khi tư vấn. © {new Date().getFullYear()} Di Trú Síp · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a> · <a href="/dieu-khoan/">Điều khoản</a> · <a href="/ho-tro/">Hỗ trợ</a> · <a href="/xoa-tai-khoan/">Xoá tài khoản</a></p>
+      <p style="margin-top:24px;font-size:13px;opacity:.8">Thông tin trên web mang tính tham khảo, không phải tư vấn pháp lý. Điều kiện và chi phí có thể thay đổi; đội ngũ xác nhận theo văn bản hiện hành khi tư vấn. © {new Date().getFullYear()} EUWay - Di Trú Síp · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a> · <a href="/dieu-khoan/">Điều khoản</a> · <a href="/ho-tro/">Hỗ trợ</a> · <a href="/xoa-tai-khoan/">Xoá tài khoản</a></p>
     </div>
   </footer>
   <a class="wa-float" href={contact.whatsapp} rel="noopener">WhatsApp</a>

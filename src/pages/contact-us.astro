@@ -18,7 +18,6 @@ const tel = (s: string) => `tel:${s.replace(/\s/g, '')}`;
         <div class="card">
           <h2>Gọi hoặc nhắn tin</h2>
           <p><span class="muted">Síp (WhatsApp/Zalo)</span><br /><a href={tel(c.phone_cy)}><b>{c.phone_cy}</b></a></p>
-          <p><span class="muted">Việt Nam</span><br /><a href={tel(c.phone_vn)}><b>{c.phone_vn}</b></a></p>
           <p><span class="muted">Email</span><br /><a href={`mailto:${c.email}`}><b>{c.email}</b></a></p>
           <p style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0"><a class="btn" href={c.whatsapp} rel="noopener">Nhắn WhatsApp</a><a class="btn alt" href={social.facebook} rel="noopener">Facebook</a></p>
         </div>

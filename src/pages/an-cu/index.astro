@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GUIDES } from '../../shared/guides';
+import { SETTLE } from '../../shared/settle';
+---
+<Base title="Hướng dẫn an cư ở Síp từng bước cho gia đình Việt | EUWay - Di Trú Síp" description="Mở ngân hàng, SIM và internet, điện nước, học cho con, bằng lái, bảo hiểm y tế GESY, mở doanh nghiệp ở Paphos: các bước, giấy tờ, nơi đăng ký, có nguồn chính thức." image="https://ditrusip.com/img/guides/sim.jpg">
+  <div class="wrap">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › An cư</p>
+    <h1>Hướng dẫn an cư ở Síp</h1>
+    <p class="muted" style="max-width:62ch;font-size:18px">Thủ tục gia đình thường làm trong những tháng đầu ở Paphos, viết theo kinh nghiệm thực tế của đội ngũ và có nguồn chính thức.</p>
+    <div class="grid guides">
+      {GUIDES.map((g) => (
+        <a class="card g" href={`/an-cu/${g.slug}/`}>
+          <img src={g.image} alt="" loading="lazy" width="900" height="450" />
+          <div><h3>{g.title}</h3><p class="muted">{g.short}</p></div>
+        </a>
+      ))}
+    </div>
+
+    <h2 style="margin-top:40px">Kinh nghiệm năm đầu</h2>
+    <p class="muted">Những việc gia đình thường làm trong năm đầu ở Síp, theo kinh nghiệm của đội ngũ tại Paphos.</p>
+    <div class="grid">
+      {SETTLE.map((x) => (
+        <div class="card"><h3 style="margin-top:0;font-size:18px">{x.title}</h3><ul>{x.points.map((p) => <li>{p}</li>)}</ul></div>
+      ))}
+    </div>
+    <p style="margin-top:24px"><a class="btn" href="/contact-us/">Nhờ đội ngũ hỗ trợ an cư</a></p>
+    <p class="note">Mỗi gia đình có hoàn cảnh khác nhau. Thủ tục, lệ phí và giờ mở cửa có thể thay đổi; đây là thông tin tham khảo, không phải tư vấn pháp lý.</p>
+  </div>
+  <style>
+    .guides .g { padding: 0; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; }
+    .guides img { width: 100%; height: auto; aspect-ratio: 2/1; object-fit: cover; display: block; border-radius: 0; }
+    .guides .g div { padding: 16px; }
+    .guides h3 { margin: 0 0 6px; font-size: 19px; }
+    .guides p { margin: 0; font-size: 15px; }
+    .card ul { padding-left: 18px; margin: 8px 0 0; }
+    .card li { margin: 6px 0; }
+  </style>
+</Base>

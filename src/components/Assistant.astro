@@ -7,6 +7,11 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
   <img src="/mia.svg" alt="" width="40" height="40" />
   <span>Hỏi Mia<small>Trợ lý di trú</small></span>
 </button>
+<div id="ai-tease" class="ai-tease" role="status" hidden>
+  <button type="button" id="ai-tease-x" class="x" aria-label="Ẩn lời chào">✕</button>
+  <div class="ai-row"><img src="/mia.svg" alt="" width="32" height="32" /><p><strong>Chào anh/chị 👋</strong>Em là Mia, trợ lý di trú. Anh/chị cần hỏi gì về thẻ thường trú Síp, chi phí hay an cư ở Paphos không ạ?</p></div>
+  <div class="chips"><button type="button" data-q="Điều kiện thẻ thường trú 6(2)">Điều kiện 6(2)</button><button type="button" data-q="Chi phí cho gia đình tôi">Chi phí</button><button type="button" data-q="Kinh nghiệm an cư năm đầu ở Síp">An cư</button></div>
+</div>
 <section id="ai-panel" class="ai-panel" role="dialog" aria-label="Mia, trợ lý di trú" hidden>
   <header>
     <img src="/mia.svg" alt="" width="40" height="40" class="ai-av-h" />
@@ -74,7 +79,19 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
   .ai-card ul { margin: 0 0 6px; padding-left: 18px; }
   .ai-card small { color: var(--muted); }
   .ai-foot { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); }
+  .ai-tease { position: fixed; right: 16px; bottom: 136px; z-index: 22; width: min(300px, calc(100vw - 32px)); background: #fff; border: 1px solid var(--line); border-radius: 16px 16px 4px 16px; padding: 12px 14px; box-shadow: 0 12px 34px rgba(14,90,120,.22); font-size: 14px; line-height: 1.45; animation: aiIn .35s ease-out; }
+  .ai-tease[hidden] { display: none; }
+  .ai-tease p { margin: 0; padding-right: 14px; }
+  .ai-tease p strong { display: block; color: var(--navy); }
+  .ai-tease .x { position: absolute; top: 6px; right: 6px; border: 0; background: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px 6px; }
+  .ai-tease .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .ai-tease .chips button { border: 1.5px solid var(--blue); background: #fff; color: var(--navy); border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .ai-open.pulse { animation: aiPulse 1.6s ease-out 3; }
+  @keyframes aiIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes aiPulse { 0% { box-shadow: 0 0 0 0 rgba(28,157,176,.55); } 100% { box-shadow: 0 0 0 16px rgba(28,157,176,0); } }
+  @media (prefers-reduced-motion: reduce) { .ai-tease, .ai-open.pulse { animation: none; } }
   @media (max-width: 520px) {
+    .ai-tease { bottom: 130px; }
     .ai-panel { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; }
     .ai-open { bottom: 72px; padding: 11px 15px; }
   }
@@ -163,5 +180,18 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
     input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(input.value); } });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) toggle(false); });
     if (location.hash === '#tro-ly') toggle(true);
+    // Lời chào tự hiện: 1 lần mỗi phiên, sau 6 giây, chỉ khi chưa mở chat.
+    const tease = $('ai-tease'), TK = 'ditrusip.ai.tease.v1';
+    let seen = false; try { seen = sessionStorage.getItem(TK) === '1'; } catch {}
+    const hideTease = () => { tease.hidden = true; try { sessionStorage.setItem(TK, '1'); } catch {} };
+    $('ai-tease-x').onclick = hideTease;
+    open.addEventListener('click', hideTease);
+    tease.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+      hideTease(); toggle(true);
+      if (consented) ask(b.dataset.q); else input.value = b.dataset.q;
+    });
+    const _agree = $('ai-agree').onclick;
+    $('ai-agree').onclick = () => { _agree(); if (input.value.trim()) ask(input.value); };
+    if (!seen && !state.msgs.length && panel.hidden) setTimeout(() => { if (panel.hidden) { tease.hidden = false; open.classList.add('pulse'); } }, 6000);
   })();
 </script>
