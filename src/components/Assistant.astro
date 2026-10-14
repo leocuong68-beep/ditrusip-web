@@ -153,7 +153,10 @@ const KEY = 'sb_publishable_y4mpI552GpVya7-rm2GRzw_VUiCM_k0';
       save(); render(); send.disabled = false; input.focus();
     }
     async function call(extra) {
-      const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify({ source: 'web', ai_consent: true, session_id: state.session, messages: state.msgs.map(m => ({ role: m.role, content: m.content })), ...extra }) });
+      // Thành viên đã đăng nhập: gửi kèm mã phiên để Mia trả lời cả phần dành cho thành viên (giá dự án, bảng chi phí, an cư).
+      const h = { 'Content-Type': 'application/json', apikey: KEY };
+      try { const t = JSON.parse(localStorage.getItem('ditrusip.auth') || 'null'); if (t?.access_token && (t.expires_at ?? 0) * 1000 > Date.now() + 30000) h.Authorization = 'Bearer ' + t.access_token; } catch {}
+      const r = await fetch(FN, { method: 'POST', headers: h, body: JSON.stringify({ source: 'web', ai_consent: true, session_id: state.session, messages: state.msgs.map(m => ({ role: m.role, content: m.content })), ...extra }) });
       const d = await r.json();
       if (!d.reply) throw new Error('no reply');
       if (d.session_id) state.session = d.session_id;
