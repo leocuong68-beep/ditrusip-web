@@ -13,7 +13,9 @@ export async function q<T = any>(path: string): Promise<T[]> {
 export type Post = { slug: string; title: string; excerpt: string; content_html: string; category: string | null; cover_url: string | null; seo_title: string | null; seo_description: string | null; published_at: string; updated_at: string };
 export type Page = { slug: string; title: string; content_html: string; seo_title: string | null; seo_description: string | null; updated_at: string };
 export type Service = Page & { summary: string | null; position: number };
-export type Listing = { id: number; slug: string; title: string; kind: string; area: string; bedrooms: string | null; size_m2: string | null; handover: string | null; price_from: number; price_to: number | null; vat_note: string | null; image_url: string | null; gallery: string[] | null; content_html: string | null; seo_title: string | null; seo_description: string | null; synced_at: string };
+// Giá, nội dung, thư viện ảnh của dự án chỉ thành viên đọc được (migration 0012); lúc build chỉ có phần xem trước.
+export type Listing = { id: number; slug: string; title: string; kind: string; area: string; bedrooms: string | null; size_m2: string | null; handover: string | null; image_url: string | null; synced_at: string };
+export type GuidePreview = { slug: string; position: number; title: string; short: string; image: string; intro: string; updated_at: string };
 
 let cache: Record<string, Promise<any[]>> = {};
 const once = <T>(k: string, path: string) => (cache[k] ??= q<T>(path)) as Promise<T[]>;
@@ -21,13 +23,13 @@ const once = <T>(k: string, path: string) => (cache[k] ??= q<T>(path)) as Promis
 export const getPosts = () => once<Post>('posts', 'posts?select=*&order=published_at.desc');
 export const getPages = () => once<Page>('pages', 'pages?select=*');
 export const getServices = () => once<Service>('services', 'services?select=*&order=position');
-export const getListings = () => once<Listing>('listings', 'listings?select=*&order=price_from.desc');
+export const getListings = () => once<Listing>('listings', 'listings?select=id,slug,title,kind,area,bedrooms,size_m2,handover,image_url,synced_at&is_published=eq.true&order=title');
+export const getGuides = () => once<GuidePreview>('guides', 'guides?select=slug,position,title,short,image,intro,updated_at&order=position');
 export const getSetting = async (key: string) => (await once<any>('settings', 'site_settings?select=*')).find((s) => s.key === key)?.value ?? {};
 
 export const CATS: Record<string, string> = { 'di-tru': 'Di trú', bds: 'Bất động sản', 'kinh-te': 'Kinh tế', 'doi-song': 'Đời sống', 'an-cu': 'An cư' };
 export const fmtEUR = (n: number) => n.toLocaleString('de-DE') + ' €';
 export const fmtDate = (s: string) => new Date(s).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Nicosia' });
-export const priceLabel = (l: Listing) => (l.price_to ? `${fmtEUR(l.price_from)} – ${fmtEUR(l.price_to)}` : `Từ ${fmtEUR(l.price_from)}`) + ' ' + (l.vat_note ?? '');
 // Ảnh/link trong nội dung cũ trỏ về ditrusip.com: giữ nguyên ảnh (wp-content còn chạy tới khi chuyển kho ảnh), đổi link nội bộ thành đường dẫn tương đối.
 export const fixLinks = (html: string) => html.replace(/href="https:\/\/ditrusip\.com(\/(?!wp-content\/)[^"]*)"/g, 'href="$1"');
 

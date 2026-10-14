@@ -6,11 +6,11 @@ export const PRIVACY: [string, string][] = [
   ],
   [
     "Tóm tắt",
-    "Chúng tôi không có quảng cáo, không bán dữ liệu và không theo dõi anh chị qua ứng dụng hay trang web khác. Phần lớn nội dung trong ứng dụng dùng được mà không cần tài khoản. Anh chị xoá được tài khoản ngay trong ứng dụng."
+    "Chúng tôi không có quảng cáo, không bán dữ liệu và không theo dõi anh chị qua ứng dụng hay trang web khác. Phần lớn nội dung dùng được mà không cần tài khoản; bảng chi phí chi tiết, hướng dẫn an cư và giá dự án bất động sản dành cho thành viên đã đăng ký. Anh chị xoá được tài khoản ngay trong ứng dụng."
   ],
   [
     "Thông tin chúng tôi lưu trên máy chủ",
-    "- Tài khoản: email đăng nhập và mã định danh tài khoản.\n- Yêu cầu tư vấn (Đặt lịch, đăng ký khảo sát, form Liên hệ trên web): họ tên, số WhatsApp/Zalo, chủ đề, lời nhắn, dự án quan tâm.\n- Đánh giá hồ sơ: câu trả lời (mục đích, gia đình, ngân sách, nguồn tiền, thu nhập, lý lịch tư pháp…) chỉ được gửi khi anh chị đánh dấu đồng ý gửi kèm yêu cầu tư vấn. Nếu không gửi, câu trả lời chỉ nằm trên máy anh chị.\n- Trò chuyện với Mia (trợ lý AI): nội dung tin nhắn, thời điểm, mã phiên và một mã băm của địa chỉ IP (không lưu IP gốc) để chống lạm dụng; nếu đang đăng nhập thì gắn với tài khoản. Họ tên, số liên lạc, nhu cầu và lịch hẹn chỉ được lưu khi anh chị bấm “Đồng ý lưu”.\n- Hồ sơ dịch vụ (khách đã ký hợp đồng): tiến trình, tên và trạng thái giấy tờ, lịch hẹn, cập nhật do đội ngũ nhập.\n- Thông báo: mã thông báo đẩy của thiết bị (khi anh chị bấm Bật thông báo), loại tin muốn nhận, trạng thái đã đọc."
+    "- Tài khoản: email đăng nhập và mã định danh tài khoản. Khi đăng ký thành viên trên web: họ tên và số điện thoại/Zalo anh chị nhập, cùng thời điểm anh chị đồng ý; đội ngũ dùng các thông tin này để liên hệ tư vấn.\n- Yêu cầu tư vấn (Đặt lịch, đăng ký khảo sát, form Liên hệ trên web): họ tên, số WhatsApp/Zalo, chủ đề, lời nhắn, dự án quan tâm.\n- Đánh giá hồ sơ: câu trả lời (mục đích, gia đình, ngân sách, nguồn tiền, thu nhập, lý lịch tư pháp…) chỉ được gửi khi anh chị đánh dấu đồng ý gửi kèm yêu cầu tư vấn. Nếu không gửi, câu trả lời chỉ nằm trên máy anh chị.\n- Trò chuyện với Mia (trợ lý AI): nội dung tin nhắn, thời điểm, mã phiên và một mã băm của địa chỉ IP (không lưu IP gốc) để chống lạm dụng; nếu đang đăng nhập thì gắn với tài khoản. Họ tên, số liên lạc, nhu cầu và lịch hẹn chỉ được lưu khi anh chị bấm “Đồng ý lưu”.\n- Hồ sơ dịch vụ (khách đã ký hợp đồng): tiến trình, tên và trạng thái giấy tờ, lịch hẹn, cập nhật do đội ngũ nhập.\n- Thông báo: mã thông báo đẩy của thiết bị (khi anh chị bấm Bật thông báo), loại tin muốn nhận, trạng thái đã đọc."
   ],
   [
     "Thông tin chỉ nằm trên máy của anh chị",

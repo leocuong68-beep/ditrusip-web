@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { COST_SOURCE } from '../shared/costs';
+import MemberGate from '../components/MemberGate.astro';
+const COST_SOURCE = 'Bảng dự toán chi phí đầu tư BĐS & hồ sơ PR Cyprus, Di Trú Síp (bản 2026)';
 ---
 <Base title="Tính Chi Phí Thường Trú Síp Diện 6(2) Cho Gia Đình | Di Trú Síp" description="Ước tính tổng chi phí mua nhà và làm thẻ thường trú Síp diện 6(2): VAT, phí luật sư, phí nhà nước, bảo hiểm và phí dịch vụ, theo số người trong gia đình.">
   <div class="wrap narrow">
@@ -13,6 +14,7 @@ import { COST_SOURCE } from '../shared/costs';
       <label>Con dưới 18<br /><input name="kids" type="number" min="0" max="8" value="2" /></label>
       <label>Con trên 18 (độc thân, đang học)<br /><input name="adultKids" type="number" min="0" max="8" value="0" /></label>
     </form>
+    <MemberGate title="Xem bảng chi phí chi tiết cho gia đình anh chị" points={['Từng khoản: VAT, luật sư, phí nhà nước, bảo hiểm, phí dịch vụ', 'Tính theo giá nhà và số người trong gia đình', 'Tổng chi phí ngoài giá nhà']} />
     <div id="out" style="margin-top:20px"></div>
     <p class="note">Ước tính theo {COST_SOURCE}. Chưa gồm chi phí đi lại, phiên dịch, công chứng tại Việt Nam. VAT 5% chỉ áp dụng khi đủ điều kiện mua làm nơi ở chính; luật sư xác nhận theo hồ sơ cụ thể. Giá nhà tối thiểu diện 6(2) là 300.000 € chưa VAT.</p>
     <p><a class="btn" href="/contact-us/">Nhận bảng chi phí cho gia đình mình</a></p>
@@ -27,15 +29,18 @@ import { COST_SOURCE } from '../shared/costs';
     #out small { color: var(--muted); }
   </style>
   <script>
-    import { computeCosts } from '../shared/costs';
+    import { whenMember, sb, esc, eur } from '../lib/member';
     const f = document.getElementById('calc') as HTMLFormElement;
     const out = document.getElementById('out')!;
-    const eur = (n: number) => n.toLocaleString('de-DE') + ' €';
-    const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!));
-    function render() {
-      const d = new FormData(f);
-      const price = Math.max(300000, Number(d.get('price')) || 300000);
-      const r = computeCosts({ price, vat: Number(d.get('vat')) === 19 ? 19 : 5, spouse: d.get('spouse') === '1', kids: Math.max(0, Number(d.get('kids')) || 0), adultKids: Math.max(0, Number(d.get('adultKids')) || 0) });
+    let seq = 0, t = 0;
+    async function render() {
+      const d = new FormData(f), n = ++seq;
+      const { data: r, error } = await sb.rpc('compute_costs', {
+        price: Math.max(300000, Number(d.get('price')) || 300000), vat: Number(d.get('vat')) === 19 ? 19 : 5,
+        spouse: d.get('spouse') === '1', kids: Math.max(0, Number(d.get('kids')) || 0), adult_kids: Math.max(0, Number(d.get('adultKids')) || 0),
+      });
+      if (n !== seq) return;
+      if (error || !r) { out.innerHTML = '<p class="muted">Chưa tính được, anh chị thử lại sau ít phút.</p>'; return; }
       let h = '<table>';
       for (const g of r.groups) {
         h += `<tr class="g"><td>${esc(g.title)}</td><td>${eur(g.total)}</td></tr>`;
@@ -45,6 +50,6 @@ import { COST_SOURCE } from '../shared/costs';
       h += `<p class="muted">Ngoài giá nhà: <b>${eur(r.extra)}</b></p>`;
       out.innerHTML = h;
     }
-    f.addEventListener('input', render); render();
+    whenMember(() => { f.addEventListener('input', () => { clearTimeout(t); t = window.setTimeout(render, 250); }); return render(); });
   </script>
 </Base>

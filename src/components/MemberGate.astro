@@ -1,0 +1,21 @@
+---
+// Ô mời đăng ký, hiện khi khách chưa đăng nhập. Script của trang ẩn ô này khi đã là thành viên (member.ts → whenMember).
+interface Props { title: string; points?: string[] }
+const { title, points = [] } = Astro.props;
+---
+<div class="gate card">
+  <div class="lock" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="10" width="16" height="11" rx="2.5" fill="currentColor"/></svg></div>
+  <h3>{title}</h3>
+  {points.length > 0 && <ul>{points.map((p) => <li>{p}</li>)}</ul>}
+  <p class="muted">Đăng ký thành viên miễn phí bằng email, xác minh bằng mã 6 số. Dùng chung tài khoản với app Di Trú Síp.</p>
+  <p class="acts"><a class="btn orange" data-login href="/dang-nhap/">Đăng ký miễn phí</a><a class="btn alt" data-login href="/dang-nhap/">Đã có tài khoản</a></p>
+</div>
+<style>
+  .gate { text-align: center; border: 1.5px dashed var(--blue); background: linear-gradient(180deg, #fff 0%, var(--sand-soft) 100%); padding: 28px 20px; margin: 18px 0; }
+  .gate[hidden] { display: none; }
+  .gate .lock { width: 52px; height: 52px; border-radius: 50%; background: var(--aqua); color: var(--navy); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+  .gate h3 { margin: 6px 0 10px; }
+  .gate ul { display: inline-block; text-align: left; margin: 0 0 10px; padding-left: 20px; }
+  .gate li { margin: 4px 0; }
+  .gate .acts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 0; }
+</style>

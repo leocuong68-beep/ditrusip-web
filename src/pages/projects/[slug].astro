@@ -2,34 +2,23 @@
 import Base from '../../layouts/Base.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import ListingCard from '../../components/ListingCard.astro';
-import { getListings, priceLabel, fixLinks, type Listing } from '../../lib/db';
+import MemberGate from '../../components/MemberGate.astro';
+import { getListings, type Listing } from '../../lib/db';
 export async function getStaticPaths() {
   return (await getListings()).map((l) => ({ params: { slug: l.slug }, props: { l } }));
 }
 const { l } = Astro.props as { l: Listing };
 const others = (await getListings()).filter((x) => x.id !== l.id && x.kind === l.kind).slice(0, 3);
-// Nội dung cũ đã có ảnh trong thư viện; bỏ ảnh trong thân bài, hiện thư viện riêng.
-// Bỏ phần đầu (cặp nhãn/giá trị lặp với khung bên phải) và phần đuôi của theme cũ (thông tin cơ bản, danh sách ảnh, điều hướng).
-function trimBody(html: string) {
-  let h = html.replace(/<img[^>]*>/g, '');
-  const start = h.indexOf('<h2');
-  if (start > 0) h = h.slice(start);
-  const cut = ['Thông tin cơ bản', 'Hình ảnh dự án', 'Điều hướng bài viết', 'Liên hệ chúng tôi để lấy báo giá']
-    .map((t) => h.indexOf(t)).filter((i) => i > 0).sort((a, b) => a - b)[0];
-  if (cut) h = h.slice(0, h.lastIndexOf('<', cut));
-  return h.replace(/<(p|li|h[1-4]|ul|strong|em)>\s*<\/\1>/g, '').trim();
-}
-const body = fixLinks(trimBody(l.content_html ?? ''));
-const gallery = (l.gallery?.length ? l.gallery : [l.image_url]).filter(Boolean) as string[];
+const gallery = [l.image_url].filter(Boolean) as string[];
 ---
-<Base title={l.seo_title ?? `${l.title} | Di Trú Síp`} description={l.seo_description} image={l.image_url}>
+<Base title={`${l.title}: ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} ${l.area}, Paphos | EUWay - Di Trú Síp`} description={`${l.title}, ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} tại ${l.area}, Paphos${l.handover ? `, bàn giao ${l.handover}` : ''}. Phù hợp hồ sơ thường trú Síp diện 6(2). Thành viên xem giá, thư viện ảnh và chi tiết.`} image={l.image_url}>
   <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/projects/">Dự án BĐS</a> › {l.title}</p>
     <h1>{l.title}</h1>
     <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {l.area}</span>
-      <b style="color:var(--navy)">{priceLabel(l)}</b>
+      <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>
       <span class="muted">{[l.bedrooms && `${l.bedrooms} phòng ngủ`, l.size_m2, l.handover && `Bàn giao ${l.handover}`].filter(Boolean).join(' · ')}</span></p>
-    <div class={`gal${gallery.length >= 5 ? '' : ' few'}`}>
+    <div id="gal" class={`gal${gallery.length >= 5 ? '' : ' few'}`}>
       {gallery.slice(0, 5).map((src, i) => (
         <button type="button" class={i === 0 ? 'main' : ''} data-i={i} aria-label={`Xem ảnh ${i + 1}`}>
           <img src={src} alt={`${l.title} — ảnh ${i + 1}`} loading={i < 1 ? 'eager' : 'lazy'} />
@@ -37,7 +26,7 @@ const gallery = (l.gallery?.length ? l.gallery : [l.image_url]).filter(Boolean) 
         </button>
       ))}
     </div>
-    {gallery.length > 1 && <p style="margin:10px 0 0"><button type="button" class="btn alt all-photos" data-i="0">Xem tất cả {gallery.length} ảnh</button></p>}
+    <p id="all" style="margin:10px 0 0" hidden><button type="button" class="btn alt all-photos" data-i="0"></button></p>
     <dialog id="lb" aria-label={`Ảnh ${l.title}`}>
       <button type="button" class="close" aria-label="Đóng">×</button>
       <button type="button" class="nav prev" aria-label="Ảnh trước">‹</button>
@@ -45,19 +34,50 @@ const gallery = (l.gallery?.length ? l.gallery : [l.image_url]).filter(Boolean) 
       <button type="button" class="nav next" aria-label="Ảnh sau">›</button>
       <p id="lb-cap"></p>
     </dialog>
-    <script define:vars={{ gallery, title: l.title }}>
-      const lb = document.getElementById('lb'), im = document.getElementById('lb-img'), cap = document.getElementById('lb-cap');
+    <script>
+      import { whenMember, fillPrices, sb, esc } from '../../lib/member';
+      const slug = location.pathname.split('/').filter(Boolean).pop();
+      const lb = document.getElementById('lb') as HTMLDialogElement, im = document.getElementById('lb-img') as HTMLImageElement, cap = document.getElementById('lb-cap')!;
+      const title = document.querySelector('h1')!.textContent || '';
+      let gallery: string[] = [im.src].filter(Boolean);
       let cur = 0;
-      const show = (i) => { cur = (i + gallery.length) % gallery.length; im.src = gallery[cur]; im.alt = `${title} — ảnh ${cur + 1}`; cap.textContent = `${cur + 1} / ${gallery.length}`; };
-      document.querySelectorAll('.gal button, .all-photos').forEach((b) => b.addEventListener('click', () => { show(Number(b.dataset.i)); lb.showModal(); }));
-      lb.querySelector('.close').addEventListener('click', () => lb.close());
-      lb.querySelector('.prev').addEventListener('click', () => show(cur - 1));
-      lb.querySelector('.next').addEventListener('click', () => show(cur + 1));
+      const show = (i: number) => { cur = (i + gallery.length) % gallery.length; im.src = gallery[cur]; im.alt = `${title} — ảnh ${cur + 1}`; cap.textContent = `${cur + 1} / ${gallery.length}`; };
+      const bind = () => document.querySelectorAll<HTMLElement>('.gal button, .all-photos').forEach((b) => (b.onclick = () => { show(Number(b.dataset.i)); lb.showModal(); }));
+      bind();
+      lb.querySelector<HTMLElement>('.close')!.onclick = () => lb.close();
+      lb.querySelector<HTMLElement>('.prev')!.onclick = () => show(cur - 1);
+      lb.querySelector<HTMLElement>('.next')!.onclick = () => show(cur + 1);
       lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
       document.addEventListener('keydown', (e) => { if (!lb.open) return; if (e.key === 'ArrowLeft') show(cur - 1); if (e.key === 'ArrowRight') show(cur + 1); });
+
+      // Nội dung cũ: bỏ ảnh trong thân bài (đã có thư viện), bỏ phần đầu lặp và phần đuôi của theme cũ.
+      function trimBody(html: string) {
+        let h = html.replace(/<img[^>]*>/g, '').replace(/<script[\s\S]*?<\/script>/gi, '');
+        const start = h.indexOf('<h2');
+        if (start > 0) h = h.slice(start);
+        const cut = ['Thông tin cơ bản', 'Hình ảnh dự án', 'Điều hướng bài viết', 'Liên hệ chúng tôi để lấy báo giá'].map((t) => h.indexOf(t)).filter((i) => i > 0).sort((a, b) => a - b)[0];
+        if (cut) h = h.slice(0, h.lastIndexOf('<', cut));
+        h = h.replace(/href="https:\/\/ditrusip\.com(\/(?!wp-content\/)[^"]*)"/g, 'href="$1"');
+        return h.replace(/<(p|li|h[1-4]|ul|strong|em)>\s*<\/\1>/g, '').trim();
+      }
+
+      whenMember(async () => {
+        fillPrices();
+        const { data: l } = await sb.from('listings').select('content_html, gallery, image_url').eq('slug', slug!).maybeSingle();
+        if (!l) return;
+        document.getElementById('body')!.innerHTML = trimBody(l.content_html ?? '');
+        gallery = ((l.gallery?.length ? l.gallery : [l.image_url]) as string[]).filter(Boolean);
+        const g = document.getElementById('gal')!;
+        g.className = 'gal' + (gallery.length >= 5 ? '' : ' few');
+        g.innerHTML = gallery.slice(0, 5).map((src, i) => `<button type="button" class="${i === 0 ? 'main' : ''}" data-i="${i}" aria-label="Xem ảnh ${i + 1}"><img src="${esc(src)}" alt="${esc(title)} — ảnh ${i + 1}" loading="${i < 1 ? 'eager' : 'lazy'}" />${i === 4 && gallery.length > 5 ? `<span class="more">+${gallery.length - 5} ảnh</span>` : ''}</button>`).join('');
+        if (gallery.length > 1) { const all = document.getElementById('all')!; all.hidden = false; all.querySelector('button')!.textContent = `Xem tất cả ${gallery.length} ảnh`; }
+        bind();
+      });
     </script>
-    <style>
+    <style is:global>
       .gal { display: grid; gap: 8px; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); aspect-ratio: 2.2 / 1; }
+      .price.big { font-size: 20px; display: block; }
+      .price.big.ok { font-size: 22px; }
       .gal button { padding: 0; border: 0; background: none; cursor: zoom-in; position: relative; min-height: 0; border-radius: 10px; overflow: hidden; }
       .gal button.main { grid-row: span 2; }
       .gal img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; }
@@ -81,10 +101,13 @@ const gallery = (l.gallery?.length ? l.gallery : [l.image_url]).filter(Boolean) 
       }
     </style>
     <div style="display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:24px">
-      <div class="prose" set:html={body} />
+      <div>
+        <div class="prose" id="body"></div>
+        <MemberGate title="Xem giá, thư viện ảnh và thông tin chi tiết dự án" points={['Giá từng loại căn, VAT', 'Thư viện ảnh đầy đủ, tiện ích, vị trí', 'Mặt bằng, tiến độ, lưu ý khi mua']} />
+      </div>
       <aside>
         <div class="card">
-          <b style="font-size:22px;color:var(--navy)">{priceLabel(l)}</b>
+          <b class="price big" data-price-for={l.slug}>🔒 Giá dành cho thành viên</b>
           <ul style="padding-left:18px">
             {l.bedrooms && <li>{l.bedrooms} phòng ngủ</li>}
             {l.size_m2 && <li>Diện tích: {l.size_m2}</li>}

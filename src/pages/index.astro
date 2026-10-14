@@ -7,7 +7,7 @@ import { getPages, getPosts, getListings, getServices } from '../lib/db';
 const home = (await getPages()).find((p) => p.slug === 'home');
 const posts = (await getPosts()).slice(0, 6);
 const listings = await getListings();
-const featured = [...listings.filter((l) => l.kind === 'apartment').slice(-3), ...listings.filter((l) => l.kind === 'villa').slice(-3)];
+const featured = [...listings.filter((l) => l.kind === 'apartment').slice(0, 3), ...listings.filter((l) => l.kind === 'villa').slice(0, 3)];
 const services = await getServices();
 const steps = ['Tư vấn thông tin di trú', 'Chọn bất động sản phù hợp', 'Khảo sát, tham quan trực tiếp tại Síp', 'Ký hợp đồng và làm thủ tục', 'Nhận thẻ PR và hỗ trợ an cư'];
 ---
@@ -93,4 +93,8 @@ const steps = ['Tư vấn thông tin di trú', 'Chọn bất động sản phù 
       <p style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" href="/contact-us/">Đặt lịch tư vấn</a><a class="btn alt" href="/services/khao-sat-sip/">Tour khảo sát</a></p>
     </div>
   </section>
+  <script>
+    import { whenMember, fillPrices } from '../lib/member';
+    whenMember(fillPrices);
+  </script>
 </Base>

@@ -1,5 +1,5 @@
 ---
-import { priceLabel, type Listing } from '../lib/db';
+import type { Listing } from '../lib/db';
 const { l } = Astro.props as { l: Listing };
 ---
 <a class="card" href={`/projects/${l.slug}/`} style="text-decoration:none;color:inherit;padding:0;overflow:hidden;display:flex;flex-direction:column">
@@ -8,6 +8,6 @@ const { l } = Astro.props as { l: Listing };
     <span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {l.area}</span>
     <h3 style="margin:10px 0 4px">{l.title}</h3>
     <p class="muted" style="margin:0 0 6px">{[l.bedrooms && `${l.bedrooms} phòng ngủ`, l.size_m2, l.handover && `Bàn giao: ${l.handover}`].filter(Boolean).join(' · ')}</p>
-    <b style="color:var(--navy)">{priceLabel(l)}</b>
+    <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>
   </div>
 </a>
