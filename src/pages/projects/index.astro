@@ -2,21 +2,23 @@
 import Base from '../../layouts/Base.astro';
 import ListingCard from '../../components/ListingCard.astro';
 import Partners from '../../components/Partners.astro';
-import { getListings } from '../../lib/db';
+import { areaCity, citiesOf, getListings } from '../../lib/db';
 const listings = await getListings();
-const areas = [...new Set(listings.map((l) => l.area))];
+const areas = [...new Set(listings.map((l) => areaCity(l)))].sort();
+const cities = citiesOf(listings);
+const cityText = cities.join(' và ');
 ---
-<Base title="Dự Án Bất Động Sản Paphos Cho Diện Thường Trú 6(2) | Di Trú Síp" description={`${listings.length} dự án căn hộ và biệt thự tại Paphos, Síp, phù hợp hồ sơ thường trú diện đầu tư bất động sản 6(2). Thành viên xem giá và chi tiết.`}>
+<Base title={`Dự Án Bất Động Sản ${cityText} Cho Diện Thường Trú 6(2) | Di Trú Síp`} description={`${listings.length} dự án căn hộ và biệt thự tại ${cityText}, Síp, phù hợp hồ sơ thường trú diện đầu tư bất động sản 6(2). Thành viên xem giá và chi tiết.`}>
   <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › Dự án BĐS</p>
     <h1>Dự án bất động sản</h1>
-    <p class="muted">{listings.length} dự án tại khu Paphos. <span class="mem-only">Giá chủ đầu tư công bố, chưa gồm VAT nếu ghi “+ VAT”.</span><span class="guest-only">Giá, thư viện ảnh và thông tin chi tiết dành cho thành viên. <a data-login href="/dang-nhap/">Đăng ký miễn phí</a>.</span></p>
+    <p class="muted">{listings.length} dự án tại {cityText}. <span class="mem-only">Giá chủ đầu tư công bố, chưa gồm VAT nếu ghi “+ VAT”.</span><span class="guest-only">Giá, thư viện ảnh và thông tin chi tiết dành cho thành viên. <a data-login href="/dang-nhap/">Đăng ký miễn phí</a>.</span></p>
     <form id="filter" class="card" style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:20px">
       <label>Loại<br /><select name="kind"><option value="">Tất cả</option><option value="apartment">Căn hộ</option><option value="villa">Biệt thự</option></select></label>
       <label>Khu vực<br /><select name="area"><option value="">Tất cả</option>{areas.map((a) => <option>{a}</option>)}</select></label>
       <label class="mem-only">Giá tối đa<br /><select name="max"><option value="">Không giới hạn</option><option value="350000">350.000 €</option><option value="400000">400.000 €</option><option value="500000">500.000 €</option><option value="700000">700.000 €</option></select></label>
     </form>
-    <div class="grid" id="list">{listings.map((l) => <div data-kind={l.kind} data-area={l.area} data-price=""><ListingCard l={l} /></div>)}</div>
+    <div class="grid" id="list">{listings.map((l) => <div data-kind={l.kind} data-area={areaCity(l)} data-price=""><ListingCard l={l} /></div>)}</div>
     <p id="empty" class="muted" hidden>Chưa có dự án hợp tiêu chí. Anh chị nhắn đội ngũ để được báo khi có căn mới.</p>
     <Partners />
     <p class="note" style="margin-top:24px">Giá và tiến độ do chủ đầu tư cung cấp, có thể thay đổi. Mua nhà đang xây có rủi ro chậm bàn giao; anh chị nên để luật sư kiểm tra sổ đỏ, giấy phép xây dựng và hợp đồng trước khi đặt cọc.</p>

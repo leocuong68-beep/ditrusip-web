@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import ListingCard from '../../components/ListingCard.astro';
 import MemberGate from '../../components/MemberGate.astro';
-import { getListings, type Listing } from '../../lib/db';
+import { areaCity, getListings, type Listing } from '../../lib/db';
 export async function getStaticPaths() {
   return (await getListings()).map((l) => ({ params: { slug: l.slug }, props: { l } }));
 }
@@ -11,11 +11,11 @@ const { l } = Astro.props as { l: Listing };
 const others = (await getListings()).filter((x) => x.id !== l.id && x.kind === l.kind).slice(0, 3);
 const gallery = [l.image_url].filter(Boolean) as string[];
 ---
-<Base title={`${l.title}: ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} ${l.area}, Paphos | EUWay - Di Trú Síp`} description={`${l.title}, ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} tại ${l.area}, Paphos${l.handover ? `, bàn giao ${l.handover}` : ''}. Phù hợp hồ sơ thường trú Síp diện 6(2). Thành viên xem giá, thư viện ảnh và chi tiết.`} image={l.image_url}>
+<Base title={`${l.title}: ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} ${areaCity(l)} | EUWay - Di Trú Síp`} description={`${l.title}, ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} tại ${areaCity(l)}${l.handover ? `, bàn giao ${l.handover}` : ''}. Phù hợp hồ sơ thường trú Síp diện 6(2). Thành viên xem giá, thư viện ảnh và chi tiết.`} image={l.image_url}>
   <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/projects/">Dự án BĐS</a> › {l.title}</p>
     <h1>{l.title}</h1>
-    <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {l.area}</span>
+    <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {areaCity(l)}</span>
       <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>
       <span class="muted">{[l.bedrooms && `${l.bedrooms} phòng ngủ`, l.size_m2, l.handover && `Bàn giao ${l.handover}`].filter(Boolean).join(' · ')}</span></p>
     <div id="gal" class={`gal${gallery.length >= 5 ? '' : ' few'}`}>

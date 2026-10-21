@@ -40,9 +40,9 @@ export async function fillPrices() {
   els.forEach((el) => {
     const l: any = by.get(el.dataset.priceFor!);
     if (!l) return;
-    el.textContent = (l.price_to ? `${eur(l.price_from)} – ${eur(l.price_to)}` : `Từ ${eur(l.price_from)}`) + ' ' + (l.vat_note ?? '');
+    el.textContent = l.price_from == null ? 'Giá: liên hệ đội ngũ' : (l.price_to ? `${eur(l.price_from)} – ${eur(l.price_to)}` : `Từ ${eur(l.price_from)}`) + ' ' + (l.vat_note ?? '');
     el.classList.add('ok');
     const row = el.closest<HTMLElement>('[data-kind]');
-    if (row) row.dataset.price = String(l.price_from);
+    if (row && l.price_from != null) row.dataset.price = String(l.price_from);
   });
 }
