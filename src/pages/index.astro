@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import ListingCard from '../components/ListingCard.astro';
-import Partners from '../components/Partners.astro';
 import PostCard from '../components/PostCard.astro';
 import { getPages, getPosts, getListings, getServices } from '../lib/db';
 const home = (await getPages()).find((p) => p.slug === 'home');
@@ -72,7 +71,7 @@ const steps = ['Tư vấn thông tin di trú', 'Chọn bất động sản phù 
         <a href="/projects/">Xem tất cả {listings.length} dự án →</a>
       </div>
       <div class="grid">{featured.map((l) => <ListingCard l={l} />)}</div>
-      <Partners />
+      {/* Sếp dặn 22/10/2026: ẩn logo và danh sách đối tác */}
     </div>
   </section>
 
