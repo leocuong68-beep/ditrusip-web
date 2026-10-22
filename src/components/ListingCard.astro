@@ -1,13 +1,13 @@
 ---
-import { areaCity, type Listing } from '../lib/db';
+import { SOLD_OUT, areaCity, code, type Listing } from '../lib/db';
 const { l } = Astro.props as { l: Listing };
 ---
 <a class="card" href={`/projects/${l.slug}/`} style="text-decoration:none;color:inherit;padding:0;overflow:hidden;display:flex;flex-direction:column">
   {l.image_url && <img src={l.image_url} alt={l.title} loading="lazy" style="aspect-ratio:3/2;object-fit:cover;width:100%;border-radius:0" />}
   <div style="padding:16px">
-    <span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {areaCity(l)}</span>
+    <span class="chip">{l.kind === 'villa' ? 'Villa' : 'Căn hộ'} · {areaCity(l)}</span> <span class="muted" style="font-size:13px">Mã {code(l)}</span>
     <h3 style="margin:10px 0 4px">{l.title}</h3>
     <p class="muted" style="margin:0 0 6px">{[l.bedrooms && `${l.bedrooms} phòng ngủ`, l.size_m2, l.handover && `Bàn giao: ${l.handover}`].filter(Boolean).join(' · ')}</p>
-    <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>
+    {l.status === 'sold_out' ? <b class="price" style="color:#b45309">{SOLD_OUT}</b> : <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>}
   </div>
 </a>

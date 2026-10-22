@@ -14,7 +14,7 @@ export type Post = { slug: string; title: string; excerpt: string; content_html:
 export type Page = { slug: string; title: string; content_html: string; seo_title: string | null; seo_description: string | null; updated_at: string };
 export type Service = Page & { summary: string | null; position: number };
 // Giá, nội dung, thư viện ảnh của dự án chỉ thành viên đọc được (migration 0012); lúc build chỉ có phần xem trước.
-export type Listing = { id: number; slug: string; title: string; kind: string; area: string; city?: string | null; bedrooms: string | null; size_m2: string | null; handover: string | null; image_url: string | null; synced_at: string };
+export type Listing = { id: number; slug: string; title: string; kind: string; area: string; city?: string | null; status?: string | null; bedrooms: string | null; size_m2: string | null; handover: string | null; image_url: string | null; synced_at: string };
 export type GuidePreview = { slug: string; position: number; title: string; short: string; image: string; intro: string; updated_at: string };
 
 let cache: Record<string, Promise<any[]>> = {};
@@ -23,7 +23,7 @@ const once = <T>(k: string, path: string) => (cache[k] ??= q<T>(path)) as Promis
 export const getPosts = () => once<Post>('posts', 'posts?select=*&order=published_at.desc');
 export const getPages = () => once<Page>('pages', 'pages?select=*');
 export const getServices = () => once<Service>('services', 'services?select=*&order=position');
-export const getListings = () => once<Listing>('listings', 'listings?select=id,slug,title,kind,area,city,bedrooms,size_m2,handover,image_url,synced_at&is_published=eq.true&order=title');
+export const getListings = () => once<Listing>('listings', 'listings?select=id,slug,title,kind,area,city,status,bedrooms,size_m2,handover,image_url,synced_at&is_published=eq.true&order=title').then((ls) => [...ls].sort((a, b) => Number(a.status === 'sold_out') - Number(b.status === 'sold_out')));
 export const getGuides = () => once<GuidePreview>('guides', 'guides?select=slug,position,title,short,image,intro,updated_at&order=position');
 export const getSetting = async (key: string) => (await once<any>('settings', 'site_settings?select=*')).find((s) => s.key === key)?.value ?? {};
 
@@ -51,3 +51,7 @@ export function tidy(html: string): string {
 /** Khu vực kèm thành phố ("Germasogeia, Limassol"); dự án cũ mặc định Paphos. */
 export const areaCity = (l: { area: string; city?: string | null }) => { const c = l.city || 'Paphos'; return !l.area ? c : l.area.includes(c) ? l.area : `${l.area}, ${c}`; };
 export const citiesOf = (ls: { city?: string | null }[]) => [...new Set(ls.map((l) => l.city || 'Paphos'))].sort((a, b) => (a === 'Paphos' ? -1 : b === 'Paphos' ? 1 : a.localeCompare(b)));
+
+export const SOLD_OUT = 'Hết hàng';
+export const PRICE_NOTE = 'Hàng đang bán nhanh, liên hệ đội ngũ để có thông tin và giá tốt.';
+export const code = (l: { id: number }) => `DTS-${l.id}`;

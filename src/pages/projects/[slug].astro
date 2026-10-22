@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import ListingCard from '../../components/ListingCard.astro';
 import MemberGate from '../../components/MemberGate.astro';
-import { areaCity, getListings, type Listing } from '../../lib/db';
+import { PRICE_NOTE, SOLD_OUT, areaCity, code, getListings, type Listing } from '../../lib/db';
 export async function getStaticPaths() {
   return (await getListings()).map((l) => ({ params: { slug: l.slug }, props: { l } }));
 }
@@ -11,13 +11,15 @@ const { l } = Astro.props as { l: Listing };
 const others = (await getListings()).filter((x) => x.id !== l.id && x.kind === l.kind).slice(0, 3);
 const gallery = [l.image_url].filter(Boolean) as string[];
 ---
-<Base title={`${l.title}: ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} ${areaCity(l)} | EUWay - Di Trú Síp`} description={`${l.title}, ${l.kind === 'villa' ? 'biệt thự' : 'căn hộ'} tại ${areaCity(l)}${l.handover ? `, bàn giao ${l.handover}` : ''}. Phù hợp hồ sơ thường trú Síp diện 6(2). Thành viên xem giá, thư viện ảnh và chi tiết.`} image={l.image_url}>
+<Base title={`${l.title} | Di Trú Síp`} description={`${l.title}${l.bedrooms ? `, ${l.bedrooms} phòng ngủ` : ''}${l.size_m2 ? `, ${l.size_m2}` : ''}${l.handover ? `, bàn giao ${l.handover}` : ''}. Thành viên miễn phí xem giá, thư viện ảnh và thông tin chi tiết.`} image={l.image_url}>
   <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/projects/">Dự án BĐS</a> › {l.title}</p>
     <h1>{l.title}</h1>
-    <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip">{l.kind === 'villa' ? 'Biệt thự' : 'Căn hộ'} · {areaCity(l)}</span>
-      <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>
+    <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip">{l.kind === 'villa' ? 'Villa' : 'Căn hộ'} · {areaCity(l)}</span>
+      <span class="chip" style="background:#eef3f7">Mã {code(l)}</span>
+      {l.status === 'sold_out' ? <b class="price" style="color:#b45309">{SOLD_OUT}</b> : <b class="price" data-price-for={l.slug}>🔒 Đăng nhập để xem giá</b>}
       <span class="muted">{[l.bedrooms && `${l.bedrooms} phòng ngủ`, l.size_m2, l.handover && `Bàn giao ${l.handover}`].filter(Boolean).join(' · ')}</span></p>
+    <p class="note" style="margin-top:4px">{l.status === 'sold_out' ? 'Dự án đã bán hết. Anh chị liên hệ đội ngũ để được giới thiệu dự án tương tự.' : PRICE_NOTE}</p>
     <div id="gal" class={`gal${gallery.length >= 5 ? '' : ' few'}`}>
       {gallery.slice(0, 5).map((src, i) => (
         <button type="button" class={i === 0 ? 'main' : ''} data-i={i} aria-label={`Xem ảnh ${i + 1}`}>

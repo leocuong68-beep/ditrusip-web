@@ -11,7 +11,7 @@ const cityText = cities.join(' và ');
   <div class="wrap">
     <p class="breadcrumb"><a href="/">Trang chủ</a> › Dự án BĐS</p>
     <h1>Dự án bất động sản</h1>
-    <p class="muted">{listings.length} dự án tại {cityText}. <span class="mem-only">Giá chủ đầu tư công bố, chưa gồm VAT nếu ghi “+ VAT”.</span><span class="guest-only">Giá, thư viện ảnh và thông tin chi tiết dành cho thành viên. <a data-login href="/dang-nhap/">Đăng ký miễn phí</a>.</span></p>
+    <p class="muted">{listings.length} dự án tại {cityText}. <span class="mem-only">Giá chủ đầu tư công bố, chưa gồm VAT nếu ghi “+ VAT”. Hàng đang bán nhanh, liên hệ đội ngũ để có thông tin và giá tốt.</span><span class="guest-only">Giá, thư viện ảnh và thông tin chi tiết dành cho thành viên. <a data-login href="/dang-nhap/">Đăng ký miễn phí</a>.</span></p>
     <form id="filter" class="card" style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:20px">
       <label>Loại<br /><select name="kind"><option value="">Tất cả</option><option value="apartment">Căn hộ</option><option value="villa">Biệt thự</option></select></label>
       <label>Khu vực<br /><select name="area"><option value="">Tất cả</option>{areas.map((a) => <option>{a}</option>)}</select></label>
