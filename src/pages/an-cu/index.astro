@@ -9,6 +9,7 @@ const GUIDES = await getGuides();
     <p class="breadcrumb"><a href="/">Trang chủ</a> › An cư</p>
     <h1>Hướng dẫn an cư ở Síp</h1>
     <p class="muted" style="max-width:62ch;font-size:18px">Thủ tục gia đình thường làm trong những tháng đầu ở Paphos, viết theo kinh nghiệm thực tế của đội ngũ và có nguồn chính thức.</p>
+    <p class="note" style="background:#F2E3C6;border-radius:12px;padding:12px 16px;color:#0B3C5D;max-width:70ch">⚠️ Đây là kinh nghiệm cá nhân của đội ngũ. Thông tin có thể thay đổi tùy khu vực và thời điểm, tốt nhất anh chị liên hệ trực tiếp cơ quan liên quan hoặc đội ngũ để được xác nhận.</p>
     <div class="grid guides">
       {GUIDES.map((g) => (
         <a class="card g" href={`/an-cu/${g.slug}/`}>
@@ -23,7 +24,7 @@ const GUIDES = await getGuides();
     <MemberGate title="Kinh nghiệm năm đầu dành cho thành viên" points={['Thứ tự giấy tờ năm đầu', 'Điện nước, internet, trường học, xe, nhà thuê', 'Chợ, đồ Việt, y tế, cộng đồng người Việt']} />
     <div class="grid" id="settle"></div>
     <p style="margin-top:24px"><a class="btn" href="/contact-us/">Nhờ đội ngũ hỗ trợ an cư</a></p>
-    <p class="note">Mỗi gia đình có hoàn cảnh khác nhau. Thủ tục, lệ phí và giờ mở cửa có thể thay đổi; đây là thông tin tham khảo, không phải tư vấn pháp lý.</p>
+    <p class="note">Đây là kinh nghiệm cá nhân của đội ngũ. Thông tin có thể thay đổi tùy khu vực và thời điểm, tốt nhất anh chị liên hệ trực tiếp cơ quan liên quan hoặc đội ngũ để được xác nhận. Đây là thông tin tham khảo, không phải tư vấn pháp lý.</p>
   </div>
   <style is:global>
     .guides .g { padding: 0; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; }

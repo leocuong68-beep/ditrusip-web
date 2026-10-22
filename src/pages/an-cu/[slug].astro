@@ -13,6 +13,7 @@ const others = (await getGuides()).filter((x) => x.slug !== g.slug);
     <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/an-cu/">An cư</a> › {g.title}</p>
     <img class="hero" src={g.image} alt="" width="900" height="450" />
     <h1>{g.title}</h1>
+    <p class="note" style="background:#F2E3C6;border-radius:12px;padding:12px 16px;color:#0B3C5D;max-width:70ch">⚠️ Đây là kinh nghiệm cá nhân của đội ngũ. Thông tin có thể thay đổi tùy khu vực và thời điểm, tốt nhất anh chị liên hệ trực tiếp cơ quan liên quan hoặc đội ngũ để được xác nhận.</p>
     <p class="lead">{g.intro}</p>
 
     <MemberGate title="Xem đầy đủ hướng dẫn từng bước" points={['Các bước làm, giấy tờ cần chuẩn bị', 'Địa chỉ, số điện thoại, giờ mở cửa ở Paphos', 'Kinh nghiệm thực tế của đội ngũ và nguồn chính thức']} />
@@ -31,7 +32,7 @@ const others = (await getGuides()).filter((x) => x.slug !== g.slug);
       for (const sec of g.sections as any[]) h += `<section class="card"><h2>${esc(sec.title)}</h2><ul>${sec.points.map((p: string) => `<li>${esc(p)}</li>`).join('')}</ul></section>`;
       if (g.tip) h += `<div class="card tip"><p>${esc(g.tip)}</p><a class="btn" href="/contact-us/">Nhờ đội ngũ hỗ trợ</a> <a class="btn alt" href="#tro-ly" id="ask-mia">Hỏi Mia</a></div>`;
       h += '<h2>Nguồn tham khảo</h2><ul class="src">' + (g.sources as any[]).map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a></li>`).join('') + '</ul>';
-      h += `<p class="note">Kiểm tra ngày ${esc(g.checked)}. Thủ tục, lệ phí và giờ mở cửa có thể thay đổi; hỏi lại cơ quan liên quan trước khi đi. Đây là thông tin tham khảo, không phải tư vấn pháp lý.</p>`;
+      h += `<p class="note">Kiểm tra ngày ${esc(g.checked)}. Đây là kinh nghiệm cá nhân của đội ngũ. Thông tin có thể thay đổi tùy khu vực và thời điểm, tốt nhất anh chị liên hệ trực tiếp cơ quan liên quan hoặc đội ngũ để được xác nhận. Đây là thông tin tham khảo, không phải tư vấn pháp lý.</p>`;
       box.innerHTML = h;
       document.getElementById('ask-mia')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('ai-open')?.click(); });
     });
