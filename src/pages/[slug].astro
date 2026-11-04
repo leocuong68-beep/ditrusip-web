@@ -34,6 +34,7 @@ const jsonld = kind === 'post' ? {
         <p class="muted">{item.category && <span class="chip">{CATS[item.category]}</span>} Đăng {fmtDate(item.published_at)}{item.updated_at.slice(0, 10) !== item.published_at.slice(0, 10) && ` · Cập nhật ${fmtDate(item.updated_at)}`}</p>
         {item.cover_url && <img src={item.cover_url} alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover" />}
         <div class="prose" set:html={body} />
+        <div class="app-cta"><p><strong>App Di Trú Síp</strong> · Đánh giá hồ sơ, dự toán chi phí, dự án nhà ở, hướng dẫn an cư và trợ lý Mia tiếng Việt. Miễn phí.</p><a href="https://apps.apple.com/app/id6822264770" rel="noopener">Tải trên App Store</a></div>
         <p class="note">Bài viết mang tính tham khảo, không phải tư vấn pháp lý hay thuế. Anh chị cần xác nhận với luật sư theo hồ sơ cụ thể.</p>
       </article>
     ) : (

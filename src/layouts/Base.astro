@@ -90,6 +90,10 @@ const path = Astro.url.pathname;
     .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
     .muted { color: var(--muted); }
     .chip { display: inline-block; background: var(--aqua); color: var(--navy); border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 600; text-decoration: none; }
+    .app-cta { display:flex; gap:14px; align-items:center; flex-wrap:wrap; background: var(--navy); color:#fff; padding:16px 18px; border-radius:12px; margin:24px 0; }
+    .app-cta p { margin:0; flex:1 1 260px; color:#DDEFF3; font-size:15px; }
+    .app-cta strong { color:#fff; }
+    .app-cta a { background:#fff; color: var(--navy); font-weight:700; padding:10px 16px; border-radius:8px; text-decoration:none; white-space:nowrap; }
     .note { background: var(--sand-soft); border-left: 4px solid var(--warn); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--muted); }
     .prose { font-size: 17px; }
     .prose.page img { max-height: 440px; width: auto; display: block; margin: 12px 0; }
@@ -153,6 +157,10 @@ const path = Astro.url.pathname;
         <div>
           <h4>Theo dõi</h4>
           <p><a href={social.youtube} rel="noopener">YouTube Cường Đảo Síp</a><br /><a href={social.facebook} rel="noopener">Facebook Cường Đảo Síp</a></p>
+        </div>
+        <div>
+          <h4>App Di Trú Síp</h4>
+          <p>Dự toán chi phí, dự án Paphos và Limassol, hướng dẫn an cư, trợ lý Mia tiếng Việt.<br /><a href="https://apps.apple.com/app/id6822264770" rel="noopener">Tải trên App Store ›</a></p>
         </div>
       </div>
       <p style="margin-top:24px;font-size:13px;opacity:.8">Thông tin trên web mang tính tham khảo, không phải tư vấn pháp lý. Điều kiện và chi phí có thể thay đổi; đội ngũ xác nhận theo văn bản hiện hành khi tư vấn. © {new Date().getFullYear()} EUWay - Di Trú Síp · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a> · <a href="/dieu-khoan/">Điều khoản</a> · <a href="/ho-tro/">Hỗ trợ</a> · <a href="/xoa-tai-khoan/">Xoá tài khoản</a></p>
