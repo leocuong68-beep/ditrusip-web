@@ -37,7 +37,7 @@ const gallery = [l.image_url].filter(Boolean) as string[];
       <p id="lb-cap"></p>
     </dialog>
     <script>
-      import { whenMember, fillPrices, sb, esc } from '../../lib/member';
+      import { whenMember, fillPrices, sb, esc, session, sharedListings } from '../../lib/member';
       const slug = location.pathname.split('/').filter(Boolean).pop();
       const lb = document.getElementById('lb') as HTMLDialogElement, im = document.getElementById('lb-img') as HTMLImageElement, cap = document.getElementById('lb-cap')!;
       const title = document.querySelector('h1')!.textContent || '';
@@ -65,7 +65,7 @@ const gallery = [l.image_url].filter(Boolean) as string[];
 
       whenMember(async () => {
         fillPrices();
-        const { data: l } = await sb.from('listings').select('content_html, gallery, image_url').eq('slug', slug!).maybeSingle();
+        const l: any = (await session()) ? (await sb.from('listings').select('content_html, gallery, image_url').eq('slug', slug!).maybeSingle()).data : (await sharedListings()).find((x) => x.slug === slug);
         if (!l) return;
         document.getElementById('body')!.innerHTML = trimBody(l.content_html ?? '');
         gallery = ((l.gallery?.length ? l.gallery : [l.image_url]) as string[]).filter(Boolean);
@@ -74,7 +74,7 @@ const gallery = [l.image_url].filter(Boolean) as string[];
         g.innerHTML = gallery.slice(0, 5).map((src, i) => `<button type="button" class="${i === 0 ? 'main' : ''}" data-i="${i}" aria-label="Xem ảnh ${i + 1}"><img src="${esc(src)}" alt="${esc(title)} — ảnh ${i + 1}" loading="${i < 1 ? 'eager' : 'lazy'}" />${i === 4 && gallery.length > 5 ? `<span class="more">+${gallery.length - 5} ảnh</span>` : ''}</button>`).join('');
         if (gallery.length > 1) { const all = document.getElementById('all')!; all.hidden = false; all.querySelector('button')!.textContent = `Xem tất cả ${gallery.length} ảnh`; }
         bind();
-      });
+      }, { share: true });
     </script>
     <style is:global>
       .gal { display: grid; gap: 8px; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); aspect-ratio: 2.2 / 1; }

@@ -30,7 +30,7 @@ const cityText = cities.join(' và ');
   <style>#filter select{padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;margin-top:4px}</style>
   <script>
     import { whenMember, fillPrices } from '../../lib/member';
-    whenMember(fillPrices);
+    whenMember(fillPrices, { share: true });
     const f = document.getElementById('filter') as HTMLFormElement;
     const city = f.elements.namedItem('city') as HTMLSelectElement;
     const area = f.elements.namedItem('area') as HTMLSelectElement;
