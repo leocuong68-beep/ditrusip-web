@@ -18,3 +18,9 @@ Trang lưu trữ cũ (`/category/*`, `/author/*`, `/project-type|location|budget
 - Viết lại nội dung trang Về chúng tôi, Dịch vụ, Hỏi đáp cho gọn (hiện là nội dung chuyển từ Elementor).
 - Chuyển ảnh từ wp-content sang kho `media` của Supabase trước khi tắt WordPress.
 - Webhook build lại khi có bài mới; đổi DNS ditrusip.com.
+
+## Khu Học (`/hoc/`) — thêm 16/11/2026
+- Trang: `/hoc/` (xin quyền), `/hoc/tieng-hy-lap/` (học), `/hoc/quan-tri/` (nhân viên duyệt). Cả ba đặt noindex, chưa gắn vào menu.
+- Bảng Supabase: `hoc_access` (pending/approved/rejected, chỉ staff đổi trạng thái), `hoc_lessons` (bài học, RLS chỉ trả cho tài khoản đã duyệt hoặc staff), `hoc_progress` (tiến độ của từng người).
+- Bài học KHÔNG nằm trong web tĩnh: trang tải từ `hoc_lessons` sau khi đăng nhập. `public/hoc/hy-lap.js` chỉ là máy chạy bài.
+- Thêm môn mới (trắc nghiệm quốc tịch, bằng lái): thêm dòng `course` khác trong `hoc_lessons` và một trang trong `src/pages/hoc/`.

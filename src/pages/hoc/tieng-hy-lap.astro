@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Học tiếng Hy Lạp | Khu Học Di Trú Síp" description="Học tiếng Hy Lạp cho người Việt ở Síp, dành cho thành viên đã được duyệt." noindex>
+  <div class="wrap narrow">
+    <p class="breadcrumb"><a href="/">Trang chủ</a> › <a href="/hoc/">Khu Học</a> › Tiếng Hy Lạp</p>
+    <div id="hl"><div id="app"><p class="muted">Đang tải bài học…</p></div></div>
+  </div>
+  <link rel="stylesheet" href="/hoc/hy-lap.css" />
+  <style is:global>
+    .wa-float, .ai-open, .ai-tease { display: none !important; }
+  </style>
+  <script>
+    import { sb, session, loginHref } from '../../lib/member';
+    import { GREEK_STAGES } from '../../lib/hoc';
+    (async () => {
+      const s = await session();
+      if (!s) { location.replace(loginHref('/hoc/')); return; }
+      const box = document.getElementById('app')!;
+      const { data: rows, error } = await sb.from('hoc_lessons').select('id, stage, title, data').eq('course', 'greek').order('position');
+      if (error) { box.innerHTML = '<p class="muted">Chưa tải được bài học, anh chị thử lại sau ít phút.</p>'; return; }
+      if (!rows || !rows.length) { location.replace('/hoc/'); return; } // chưa được duyệt: RLS không trả bài nào
+      const { data: prog } = await sb.from('hoc_progress').select('data, updated_at').eq('user_id', s.user.id).eq('course', 'greek').maybeSingle();
+      let last = '';
+      (window as any).HOC = {
+        uid: s.user.id,
+        stages: GREEK_STAGES,
+        days: rows.map((r: any) => ({ id: r.id, stage: r.stage, title: r.title, ...r.data })),
+        remote: prog ?? null,
+        push(state: unknown) {
+          const body = JSON.stringify(state);
+          if (body === last) return;
+          last = body;
+          sb.from('hoc_progress').upsert({ user_id: s.user.id, course: 'greek', data: state, updated_at: new Date().toISOString() }).then(() => {});
+        },
+      };
+      const el = document.createElement('script');
+      el.src = '/hoc/hy-lap.js';
+      document.body.appendChild(el);
+    })();
+  </script>
+</Base>
