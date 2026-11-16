@@ -1,0 +1,10 @@
+---
+// Trang đã chuyển sang blog Cuộc Sống Đảo Síp A-Z (sếp chốt 16/11/2026). GitHub Pages không có 301: dùng canonical + meta refresh + JS.
+const { to, title = 'Đã chuyển sang Cuộc Sống Đảo Síp A-Z' } = Astro.props as { to: string; title?: string };
+---
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title><link rel="canonical" href={to} /><meta name="robots" content="noindex, follow" />
+<meta http-equiv="refresh" content={`0; url=${to}`} /></head>
+<body style="font-family:system-ui,sans-serif;padding:40px 20px;max-width:640px;margin:auto"><p>Bài viết đã chuyển sang blog <a href={to}>Cuộc Sống Đảo Síp A-Z</a>.</p>
+<script is:inline define:vars={{ to }}>location.replace(to + location.hash);</script></body></html>

@@ -4,7 +4,7 @@ import ListingCard from '../components/ListingCard.astro';
 import PostCard from '../components/PostCard.astro';
 import { getPages, getPosts, getListings, getServices } from '../lib/db';
 const home = (await getPages()).find((p) => p.slug === 'home');
-const posts = (await getPosts()).slice(0, 6);
+const posts = (await getPosts()).filter((p: any) => p.section !== 'video').slice(0, 6);
 const listings = await getListings();
 const featured = [...listings.filter((l) => l.kind === 'apartment').slice(0, 3), ...listings.filter((l) => l.kind === 'villa').slice(0, 3)];
 const services = await getServices();
@@ -78,8 +78,8 @@ const steps = ['Tư vấn thông tin di trú', 'Chọn bất động sản phù 
   <section class="band white">
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-        <h2 style="margin-top:0">Tin tức và kiến thức</h2>
-        <a href="/blog/">Xem tất cả →</a>
+        <h2 style="margin-top:0">Bài mới trên blog Cuộc Sống Đảo Síp A-Z</h2>
+        <a href="https://www.cuocsongdaosip.com/">Đọc blog →</a>
       </div>
       <div class="grid">{posts.map((p) => <PostCard p={p} />)}</div>
     </div>
