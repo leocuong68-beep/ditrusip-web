@@ -20,6 +20,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      urls: ${{ steps.idx.outputs.urls }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,6 +30,16 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - id: idx
+        name: Danh sách URL mới cho IndexNow (Bing, ChatGPT search)
+        env:
+          ALL: "${{ contains(github.event.head_commit.message, '[indexnow-all]') && '1' || '0' }}"
+        run: |
+          grep -o '<loc>[^<]*' dist/sitemap.xml | sed 's/<loc>//' | sort -u > new.txt
+          (curl -fsS https://ditrusip.com/sitemap.xml || true) | grep -o '<loc>[^<]*' | sed 's/<loc>//' | sort -u > old.txt || true
+          if [ "$ALL" = 1 ]; then cp new.txt list.txt; else comm -23 new.txt old.txt > list.txt; fi
+          echo "Gửi $(wc -l < list.txt) URL"
+          echo "urls=$(jq -R . list.txt | jq -sc .)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -45,6 +57,14 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Báo IndexNow
+        if: needs.build.outputs.urls != '' && needs.build.outputs.urls != '[]'
+        continue-on-error: true
+        env:
+          URLS: ${{ needs.build.outputs.urls }}
+        run: |
+          curl -sS -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' \
+            -d "{\"host\":\"ditrusip.com\",\"key\":\"763befb5d63542371d7b4c34476342cf\",\"keyLocation\":\"https://ditrusip.com/763befb5d63542371d7b4c34476342cf.txt\",\"urlList\":$URLS}" -w '\nHTTP %{http_code}\n'
   deploy_cloudflare:
     needs: build
     runs-on: ubuntu-latest

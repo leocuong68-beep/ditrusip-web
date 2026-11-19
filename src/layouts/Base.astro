@@ -7,10 +7,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const contact = await getSetting('contact');
 const social = await getSetting('social');
 const org = {
-  '@context': 'https://schema.org', '@type': 'Organization', name: 'EUWay - Di Trú Síp', alternateName: ['Di Trú Síp', 'EUWay'], founder: { '@type': 'Person', name: 'Đặng Thái Cường' },
+  '@context': 'https://schema.org', '@type': 'Organization', name: 'EUWay - Di Trú Síp', alternateName: ['Di Trú Síp', 'EUWay'], founder: { '@type': 'Person', '@id': 'https://www.cuocsongdaosip.com/#leo', name: 'Đặng Thái Cường', alternateName: ['Leo Cường', 'Cường Đảo Síp'], url: 'https://www.cuocsongdaosip.com/gioi-thieu/', sameAs: ['https://www.youtube.com/@cuongdaosip', 'https://www.cuocsongdaosip.com/', 'https://www.leocuong.com/'] },
+  description: 'Tư vấn bằng tiếng Việt về thường trú Síp diện đầu tư bất động sản 6(2), tour khảo sát, bất động sản và an cư tại Paphos, Cộng hoà Síp.', areaServed: ['CY', 'VN'], knowsLanguage: ['vi', 'en'],
   url: 'https://ditrusip.com', email: contact.email, telephone: contact.phone_cy,
   address: { '@type': 'PostalAddress', addressLocality: 'Paphos', addressCountry: 'CY' },
-  sameAs: [social.youtube, social.facebook].filter(Boolean),
+  sameAs: [social.youtube, social.facebook, 'https://apps.apple.com/app/id6822264770', 'https://www.cuocsongdaosip.com/'].filter(Boolean),
 };
 const nav = [
   ['/ve-chung-toi/', 'Về chúng tôi'], ['/dich-vu/', 'Dịch vụ'], ['/projects/', 'Dự án BĐS'],
